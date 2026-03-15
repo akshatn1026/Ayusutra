@@ -1,0 +1,39 @@
+<div class="page-container">
+  <div class="page-inner">
+    <section class="directory">
+      <h2>Find a Doctor</h2>
+      <p *ngIf="error">{{ error }}</p>
+      <div class="search-row">
+        <input placeholder="Search by name or email" [(ngModel)]="query" (input)="search()" />
+      </div>
+
+      <div class="grid" *ngIf="loading">
+        <div class="card" *ngFor="let i of [1,2,3]">
+          <div class="card-body">
+            <p>Loading doctors...</p>
+          </div>
+        </div>
+      </div>
+      <div class="grid">
+        <div *ngFor="let d of filtered" class="card">
+          <div class="card-left">
+            <div class="avatar">👩‍⚕️</div>
+          </div>
+          <div class="card-body">
+            <h3>
+              {{ d.fullName }}
+              <span class="verified-badge" *ngIf="d.verified">Verified</span>
+            </h3>
+            <p>{{ d.email }}</p>
+            <p>{{ d.degree }}</p>
+            <p>{{ d.specialization.join(', ') }}</p>
+            <p>{{ d.experienceYears }} years experience | {{ d.rating }}★ ({{ d.reviewsCount }} reviews)</p>
+            <div class="actions" *ngIf="isPatient">
+              <button class="btn" (click)="viewDoctor(d)">Consult</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

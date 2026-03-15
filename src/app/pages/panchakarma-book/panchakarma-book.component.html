@@ -1,0 +1,35 @@
+<section class="page-container">
+  <div class="page-inner">
+    <div class="glass-card card">
+      <h2>Panchakarma / Therapy Request</h2>
+      <p *ngIf="selectedTherapy"><strong>Therapy:</strong> {{ selectedTherapy.name }}</p>
+      <p *ngIf="eligibilityText"><strong>Eligibility:</strong> {{ eligibilityText }}</p>
+      <label>Therapy ID</label>
+      <input [(ngModel)]="therapyId" />
+      <label>Preferred Date</label>
+      <input type="date" [(ngModel)]="date" />
+      <button class="btn btn-primary" (click)="submit()">Submit Request</button>
+
+      <div *ngIf="latestRequest">
+        <p><strong>Current Status:</strong> {{ latestRequest.status }}</p>
+        <p *ngIf="latestRequest.doctorNotes"><strong>Doctor Notes:</strong> {{ latestRequest.doctorNotes }}</p>
+        <p><strong>Pre-therapy checklist:</strong></p>
+        <ul>
+          <li *ngFor="let item of latestRequest.preTherapyChecklist">
+            {{ item.item }} - {{ item.acknowledged ? 'Acknowledged' : 'Pending' }}
+          </li>
+        </ul>
+        <button class="btn btn-secondary" (click)="acknowledgeChecklist()" [disabled]="latestRequest.status !== 'approved'">
+          Acknowledge Pre-therapy Checklist
+        </button>
+        <p><strong>Post-therapy care:</strong> {{ (latestRequest.postTherapyCare || []).join(', ') }}</p>
+        <label>Progress Note</label>
+        <input [(ngModel)]="progressNote" />
+        <button class="btn btn-secondary" (click)="addProgressNote()" [disabled]="latestRequest.status !== 'approved'">
+          Add Progress Note
+        </button>
+      </div>
+      <p *ngIf="status">{{ status }}</p>
+    </div>
+  </div>
+</section>

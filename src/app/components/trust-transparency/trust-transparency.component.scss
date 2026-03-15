@@ -1,0 +1,95 @@
+.trust-strip {
+  border-bottom: 1px solid var(--border-700);
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.trust-row {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.35rem 0;
+}
+
+.trust-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-900);
+  letter-spacing: 0.01em;
+}
+
+.trust-pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.trust-pill {
+  border: 1px solid var(--border-700);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text-900);
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.trust-pill:hover {
+  border-color: rgba(47, 106, 47, 0.48);
+  background: rgba(168, 199, 45, 0.14);
+}
+
+.trust-modal-shell {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(26, 34, 24, 0.45);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.trust-modal {
+  width: min(38rem, calc(100% - 1.2rem));
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-700);
+  background: #f4f7ef;
+  box-shadow: var(--shadow-md);
+  padding: 0.95rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.trust-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.trust-modal-head h3 {
+  font-size: 1rem;
+}
+
+.trust-modal-body {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.trust-modal-body p {
+  font-size: 0.88rem;
+}
+
+@media (max-width: 860px) {
+  .trust-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .trust-pills {
+    justify-content: flex-start;
+  }
+}

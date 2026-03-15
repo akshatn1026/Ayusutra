@@ -1,0 +1,267 @@
+<div class="dashboard-shell" *ngIf="!isLoading && !loadError; else stateTpl">
+  <section class="welcome-panel card">
+    <div>
+      <p class="eyebrow">My Dashboard</p>
+      <h1>{{ greetingTitle }}</h1>
+      <p class="subtitle">Last login: {{ lastLoginLabel }}</p>
+      <p class="subtitle">Current time: {{ nowLabel }}</p>
+    </div>
+    <div class="completion-box">
+      <span>Profile Completion</span>
+      <strong>{{ profileCompletion }}%</strong>
+      <div class="progress-track">
+        <div class="progress-fill" [style.width.%]="profileCompletion"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="metrics-grid">
+    <article class="metric-card card" *ngFor="let metric of insights">
+      <p>{{ metric.label }}</p>
+      <h2>{{ metric.value }}{{ metric.unit || '' }}</h2>
+    </article>
+  </section>
+
+  <section class="main-grid">
+    <article class="panel card guidance-panel">
+      <header class="panel-head">
+        <h3>Personalized Guidance</h3>
+        <button class="btn btn-outline btn-sm" (click)="refreshGuidance(true)" [disabled]="isGuidanceLoading">Refresh</button>
+      </header>
+      <p class="guidance-advisory">{{ guidanceAdvisory }}</p>
+      <div class="symptom-quick card">
+        <div class="symptom-head">
+          <strong>Quick Symptom Log</strong>
+          <span>Today</span>
+        </div>
+        <div class="symptom-presets">
+          <button class="btn btn-outline btn-sm" *ngFor="let preset of symptomQuickOptions" [disabled]="isSymptomSaving" (click)="logQuickSymptom(preset)">
+            {{ preset }}
+          </button>
+        </div>
+        <div class="symptom-form-row">
+          <input
+            [(ngModel)]="symptomInput"
+            name="symptomInput"
+            placeholder="Add symptom (e.g., acidity)"
+            maxlength="80"
+            [disabled]="isSymptomSaving"
+          />
+          <select [(ngModel)]="symptomSeverity" name="symptomSeverity" [disabled]="isSymptomSaving">
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+          </select>
+          <button class="btn btn-primary btn-sm" (click)="logQuickSymptom()" [disabled]="isSymptomSaving">Log</button>
+        </div>
+        <div class="symptom-form-row">
+          <input
+            [(ngModel)]="symptomNote"
+            name="symptomNote"
+            placeholder="Optional note"
+            maxlength="220"
+            [disabled]="isSymptomSaving"
+          />
+        </div>
+        <p class="empty-state" *ngIf="symptomError">{{ symptomError }}</p>
+        <div class="symptom-log-list" *ngIf="symptomLogs.length">
+          <div class="symptom-log-item" *ngFor="let log of symptomLogs | slice:0:6">
+            <span>{{ log.symptom }} ({{ log.severity }})</span>
+            <small>{{ formatSymptomDate(log.loggedForDate) }}</small>
+          </div>
+        </div>
+        <p class="empty-state" *ngIf="!symptomLogs.length && !isSymptomLoading">No recent symptoms logged.</p>
+      </div>
+      <div class="activity-list" *ngIf="guidanceItems.length; else guidanceState">
+        <div class="guidance-item" *ngFor="let item of guidanceItems">
+          <div class="guidance-meta">
+            <span class="badge">{{ guidanceTypeLabel(item.type) }}</span>
+            <span>{{ item.whenToFollow }}</span>
+          </div>
+          <h4>{{ item.content }}</h4>
+          <p>Why: {{ item.whySuggested || item.triggerReason }}</p>
+          <p class="trigger">Based on: {{ item.triggerReason }}</p>
+          <div class="guidance-actions">
+            <button class="btn btn-outline btn-sm" (click)="onGuidanceFeedback(item, 'helpful')">Helpful</button>
+            <button class="btn btn-outline btn-sm" (click)="onGuidanceFeedback(item, 'ignored')">Ignore</button>
+            <button class="btn btn-outline btn-sm" [disabled]="item.isSaved" (click)="onGuidanceFeedback(item, 'saved')">
+              {{ item.isSaved ? 'Saved' : 'Save' }}
+            </button>
+            <button class="btn btn-outline btn-sm" *ngIf="item.type === 'dosha_balancing' || item.type === 'condition'" (click)="reassessDosha()">
+              Reassess Dosha
+            </button>
+            <button class="btn btn-outline btn-sm" (click)="onGuidanceFeedback(item, 'dismissed')">Dismiss</button>
+          </div>
+        </div>
+      </div>
+      <ng-template #guidanceState>
+        <p class="empty-state" *ngIf="isGuidanceLoading">Generating your guidance...</p>
+        <p class="empty-state" *ngIf="!isGuidanceLoading && guidanceError">{{ guidanceError }}</p>
+        <p class="empty-state" *ngIf="!isGuidanceLoading && !guidanceError">No guidance available yet.</p>
+      </ng-template>
+    </article>
+
+    <article class="panel card">
+      <header class="panel-head">
+        <h3>Activity</h3>
+      </header>
+      <div class="activity-list" *ngIf="activities.length; else emptyActivity">
+        <div class="activity-item" *ngFor="let item of activities">
+          <div>
+            <h4>{{ item.title }}</h4>
+            <p>{{ item.subtitle }}</p>
+          </div>
+          <time>{{ formatActivityTime(item.at) }}</time>
+        </div>
+      </div>
+      <ng-template #emptyActivity>
+        <p class="empty-state">No recent activity found.</p>
+      </ng-template>
+    </article>
+
+    <article class="panel card">
+      <header class="panel-head">
+        <h3>Quick Actions</h3>
+      </header>
+      <div class="actions-grid">
+        <button class="btn-danger-outline" (click)="requestEmergencyConsult()" [disabled]="isRequestingEmergency">
+          <span class="material-symbols-outlined icon-sm">emergency</span>
+          <strong>Emergency Consult</strong>
+          <span>{{ isRequestingEmergency ? 'Finding Doctor...' : 'Connect to a doctor instantly' }}</span>
+        </button>
+        <button *ngFor="let action of quickActions" [disabled]="!action.enabled || isRequestingEmergency" (click)="runAction(action)">
+          <strong>{{ action.label }}</strong>
+          <span>{{ action.description }}</span>
+        </button>
+      </div>
+    </article>
+
+    <article class="panel card">
+      <header class="panel-head">
+        <h3>My Prescriptions</h3>
+      </header>
+      <div class="activity-list" *ngIf="myPrescriptions?.length; else emptyPrescriptions">
+        <div class="activity-item" *ngFor="let rx of myPrescriptions">
+          <div>
+            <h4>Prescription</h4>
+            <p>{{ rx.created_at | date:'mediumDate' }}</p>
+          </div>
+          <button class="btn btn-outline" *ngIf="rx.pdf_url" (click)="downloadRealPdf(rx.pdf_url)">Download PDF</button>
+        </div>
+      </div>
+      <ng-template #emptyPrescriptions>
+        <p class="empty-state">No previous prescriptions.</p>
+      </ng-template>
+    </article>
+
+    <article class="panel card">
+      <header class="panel-head">
+        <h3>Upcoming Consultations</h3>
+      </header>
+      <div class="activity-list" *ngIf="upcomingBookings.length; else emptyUpcomingConsult">
+        <div class="activity-item" *ngFor="let booking of upcomingBookings">
+          <div>
+            <h4>{{ booking.doctorName || booking.doctorId }}</h4>
+            <p>{{ booking.mode | uppercase }} | {{ formatActivityTime(booking.scheduledTime) }}</p>
+          </div>
+          <button class="btn btn-outline" (click)="startConsultationFromBooking(booking)">Start</button>
+        </div>
+      </div>
+      <ng-template #emptyUpcomingConsult>
+        <p class="empty-state">No upcoming consultations. Book one now from Quick Actions.</p>
+      </ng-template>
+    </article>
+
+    <article class="panel card">
+      <header class="panel-head">
+        <h3>Past Consultations</h3>
+      </header>
+      <div class="activity-list" *ngIf="pastBookings.length; else emptyPastConsult">
+        <div class="activity-item" *ngFor="let booking of pastBookings">
+          <div>
+            <h4>{{ booking.doctorName || booking.doctorId }}</h4>
+            <p>{{ booking.status }} | {{ formatActivityTime(booking.scheduledTime) }}</p>
+          </div>
+          <button class="btn btn-outline" (click)="rebook(booking)">Rebook</button>
+        </div>
+      </div>
+      <ng-template #emptyPastConsult>
+        <p class="empty-state">No past consultations yet.</p>
+      </ng-template>
+    </article>
+  </section>
+</div>
+
+<ng-template #stateTpl>
+  <section class="state-shell" *ngIf="isLoading">
+    <div class="skeleton skeleton-head"></div>
+    <div class="skeleton skeleton-row" *ngFor="let i of [1,2,3]"></div>
+  </section>
+
+  <section class="state-shell" *ngIf="!isLoading && loadError">
+    <article class="card error-card">
+      <h3>Unable to load dashboard</h3>
+      <p>{{ loadError }}</p>
+      <button class="btn btn-primary" (click)="retryLoad()">Retry</button>
+    </article>
+  </section>
+</ng-template>
+
+<app-modal *ngIf="showBookingModal" (close)="closeBooking()">
+  <div class="modal-header">
+    <h2>Book Appointment</h2>
+    <p>Schedule your next consultation.</p>
+  </div>
+  <form class="booking-form" (ngSubmit)="submitBooking()">
+    <div class="form-row">
+      <label>Doctor</label>
+      <select [(ngModel)]="booking.doctor" name="doctor" required>
+        <option *ngFor="let doctorName of availableDoctors" [value]="doctorName">{{ doctorName }}</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Date</label>
+      <input type="date" [(ngModel)]="booking.date" name="date" required>
+    </div>
+    <div class="form-row">
+      <label>Time</label>
+      <input type="time" [(ngModel)]="booking.time" name="time" required>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn btn-outline" (click)="closeBooking()">Cancel</button>
+      <button type="submit" class="btn btn-primary">Confirm</button>
+    </div>
+  </form>
+</app-modal>
+
+<app-modal *ngIf="showConsultNowModal" (close)="closeConsultNow()">
+  <div class="modal-header">
+    <h2>Consult Now</h2>
+    <p>Select how you would like to connect with a doctor instantly.</p>
+  </div>
+  <div class="consult-options-grid">
+    <button class="btn btn-outline-gold options-btn" (click)="startInstantConsultation('chat')" [disabled]="isStartingInstant">
+      <span class="material-symbols-outlined">chat</span>
+      <strong>Chat Consultation</strong>
+      <span class="small-text">Best for quick questions</span>
+    </button>
+    <button class="btn btn-outline-gold options-btn" (click)="startInstantConsultation('audio')" [disabled]="isStartingInstant">
+      <span class="material-symbols-outlined">call</span>
+      <strong>Audio Call</strong>
+      <span class="small-text">Best for deeper context</span>
+    </button>
+    <button class="btn btn-outline-gold options-btn" (click)="startInstantConsultation('video')" [disabled]="isStartingInstant">
+      <span class="material-symbols-outlined">videocam</span>
+      <strong>Video Call</strong>
+      <span class="small-text">Best for visual assessment</span>
+    </button>
+  </div>
+  <div class="emergency-wrapper mt-4">
+    <div class="dropdown-divider"></div>
+    <p class="text-center helper-text">Need immediate help?</p>
+    <button class="btn btn-danger full-btn" (click)="requestEmergencyConsult(); closeConsultNow()" [disabled]="isRequestingEmergency">
+      <span class="material-symbols-outlined icon-sm">emergency</span>
+      Emergency Consultation
+    </button>
+  </div>
+</app-modal>

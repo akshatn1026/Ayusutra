@@ -1,0 +1,32 @@
+<section class="page-container">
+  <div class="page-inner">
+    <div class="glass-card card">
+      <h2>Ayurvedic E-Pharmacy</h2>
+      <p>Prescription-based medicine purchase with chronic care subscriptions.</p>
+
+      <div *ngIf="prescriptions.length; else noRx" class="form">
+        <label>Prescription</label>
+        <select [(ngModel)]="selectedPrescriptionId">
+          <option *ngFor="let p of prescriptions" [value]="p.id">{{ p.id }} | {{ p.diagnosis }}</option>
+        </select>
+
+        <label>Subscription Plan</label>
+        <select [(ngModel)]="subscription">
+          <option value="none">One-time</option>
+          <option value="monthly">Monthly refill</option>
+          <option value="quarterly">Quarterly refill</option>
+        </select>
+
+        <button class="btn btn-primary" (click)="placeOrder()">Place Order</button>
+        <a class="btn btn-outline" [routerLink]="['/patient/prescription', selectedPrescriptionId]" *ngIf="selectedPrescriptionId">View Prescription</a>
+        <a class="btn btn-outline" routerLink="/orders">View Order History</a>
+      </div>
+
+      <ng-template #noRx>
+        <p>No prescription found. Complete a consultation first.</p>
+      </ng-template>
+
+      <p *ngIf="status">{{ status }}</p>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,74 @@
+<section class="contact-page">
+  <div class="contact-hero">
+    <p class="kicker">Contact AYUSUTRA</p>
+    <h1>Speak With Our Care Team</h1>
+    <p>Consultation support, treatment guidance, and account help in one place.</p>
+  </div>
+
+  <div class="contact-layout container">
+    <section class="contact-form-card">
+      <h2>Send a Message</h2>
+      <p class="intro">Share your concern and our team will respond within 24 hours.</p>
+
+      <form class="contact-form" (ngSubmit)="submit()">
+        <div class="field-group">
+          <input id="name" type="text" placeholder=" " [(ngModel)]="model.fullName" name="fullName" required />
+          <label for="name">Full Name</label>
+        </div>
+
+        <div class="field-group">
+          <input id="email" type="email" placeholder=" " [(ngModel)]="model.email" name="email" required />
+          <label for="email">Email Address</label>
+        </div>
+
+        <div class="field-group">
+          <input id="phone" type="tel" placeholder=" " [(ngModel)]="model.phone" name="phone" />
+          <label for="phone">Phone Number (Optional)</label>
+        </div>
+
+        <div class="field-group">
+          <select id="subject" required [(ngModel)]="model.subject" name="subject">
+            <option value="" disabled hidden></option>
+            <option value="consultation">Consultation Support</option>
+            <option value="herbs">Herb Guidance</option>
+            <option value="technical">Technical Issue</option>
+            <option value="feedback">Feedback</option>
+          </select>
+          <label for="subject">Subject</label>
+        </div>
+
+        <div class="field-group">
+          <textarea id="message" rows="5" placeholder=" " [(ngModel)]="model.message" name="message" required></textarea>
+          <label for="message">Your Message</label>
+        </div>
+
+        <button class="submit-btn" type="submit" [disabled]="submitting">{{ submitting ? 'Sending...' : 'Send Message' }}</button>
+      </form>
+    </section>
+
+    <aside class="contact-info-card">
+      <h2>Direct Channels</h2>
+      <div class="method">
+        <h3>Email</h3>
+        <a href="mailto:support&#64;ayusutra.com">support&#64;ayusutra.com</a>
+        <p>General inquiries and support requests.</p>
+      </div>
+      <div class="method">
+        <h3>Consultation Desk</h3>
+        <a routerLink="/doctors">View Available Doctors</a>
+        <p>Book with a certified Ayurvedic specialist.</p>
+      </div>
+      <div class="method">
+        <h3>Patient Dashboard</h3>
+        <a routerLink="/dashboard">Open Dashboard</a>
+        <p>For follow-ups, prescriptions, and treatment messages.</p>
+      </div>
+
+      <div class="trust-strip">
+        <span>Licensed Doctors</span>
+        <span>Secure Profiles</span>
+        <span>Fast Support</span>
+      </div>
+    </aside>
+  </div>
+</section>

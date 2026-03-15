@@ -1,0 +1,337 @@
+<div class="home-page">
+  <!-- ─── Floating Ambient Herbs ─── -->
+  <div class="floating-herbs">
+    <span class="material-symbols-outlined herb-1 floating-herb">eco</span>
+    <span class="material-symbols-outlined herb-2 floating-herb" style="animation-delay: -2s;">psychology_alt</span>
+    <span class="material-symbols-outlined herb-3 floating-herb" style="animation-delay: -5s;">spa</span>
+  </div>
+
+  <!-- ─── Main Chat Interface ─── -->
+  <div class="home-layout">
+
+    <!-- Left Side Panel -->
+    <aside class="side-panel left-panel hide-mobile animate-fade-in delay-1500">
+      <div class="side-card glass-dark border-left-gold">
+        <div class="side-card-header text-gold">
+          <span class="material-symbols-outlined">history</span>
+          <span class="label-tag">Health Memory</span>
+        </div>
+        <p class="side-card-text">"Last Tuesday you felt low energy after lunch. Today's Pitta reading suggests better digestive fire."</p>
+      </div>
+
+      <div class="side-card glass hover-lift" (click)="navigatePage('/herbs')">
+        <div class="side-card-header text-green">
+          <span class="material-symbols-outlined">menu_book</span>
+          <span class="label-tag">Herb Discovery</span>
+        </div>
+        <div class="herb-preview">
+          <div class="herb-icon-box">
+            <span class="material-symbols-outlined text-herbal">potted_plant</span>
+          </div>
+          <div>
+            <h4>Ashwagandha</h4>
+            <span class="muted-label">Stress &amp; Vitality</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center Chat Container -->
+    <div class="chat-container glass-dark animate-scale-in">
+
+      <!-- Chat Scrollable Area -->
+      <div class="chat-body custom-scrollbar">
+
+        <!-- Hero Section -->
+        <div class="hero-center">
+          <div class="badge badge-gold badge-live">Nature-Aligned Intelligence</div>
+          <h1 class="hero-title text-gradient-gold">AI-Powered Ayurvedic Healing</h1>
+          <p class="hero-subtitle">Discover natural remedies, understand your body, and consult Ayurvedic doctors — all in one intelligent platform.</p>
+          <div class="hero-actions">
+            <button class="btn btn-gold btn-lg" (click)="startDoshaAssessment()">
+              <span class="material-symbols-outlined">biotech</span>
+              Analyze My Symptoms
+            </button>
+            <button class="btn btn-glass btn-lg" (click)="goShop()">How it Works</button>
+          </div>
+        </div>
+
+        <!-- AI Conversation Demo -->
+        <div class="chat-messages">
+
+          <!-- AI Message -->
+          <div class="message ai-message message-in">
+            <div class="msg-avatar gold">
+              <span class="material-symbols-outlined">network_intelligence</span>
+            </div>
+            <div class="msg-bubble glass border-left-gold">
+              <p>Namaste. I am your Ayusutra Guide. Based on your description of "restlessness and dry skin," I have analyzed your current state.</p>
+              <div class="insight-grid">
+                <div class="insight-card gold-accent">
+                  <h4>Pitta Imbalance Detected</h4>
+                  <p>An excess of heat and intensity in your constitution.</p>
+                </div>
+                <div class="insight-card green-accent">
+                  <h4>Recommended: Cooling Diet</h4>
+                  <p>Focus on sweet, bitter, and astringent flavors.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- User Message -->
+          <div class="message user-message message-in delay-300">
+            <div class="msg-bubble glass user-bubble">
+              <p>What herbs can help me balance this?</p>
+            </div>
+            <div class="msg-avatar green">
+              <span class="material-symbols-outlined">person</span>
+            </div>
+          </div>
+
+          <!-- AI Herbs Response -->
+          <div class="message ai-message message-in delay-500">
+            <div class="msg-avatar gold">
+              <span class="material-symbols-outlined">network_intelligence</span>
+            </div>
+            <div class="msg-bubble glass border-left-gold full-width">
+              <h4 class="protocol-title">
+                <span class="material-symbols-outlined text-gold">pill</span>
+                Herbal Protocol
+              </h4>
+              <div class="herb-protocol-grid">
+                <div class="herb-pill glass hover-lift" (click)="navigatePage('/herbs')">
+                  <span class="material-symbols-outlined icon-xl text-herbal">energy_savings_leaf</span>
+                  <strong>Triphala</strong>
+                  <span class="muted-label">Digestion</span>
+                </div>
+                <div class="herb-pill glass hover-lift" (click)="navigatePage('/herbs')">
+                  <span class="material-symbols-outlined icon-xl text-gold">coffee</span>
+                  <strong>Turmeric Milk</strong>
+                  <span class="muted-label">Immunity</span>
+                </div>
+                <div class="herb-pill glass hover-lift" (click)="navigatePage('/herbs')">
+                  <span class="material-symbols-outlined icon-xl" style="color: #34d399">medication</span>
+                  <strong>Neem</strong>
+                  <span class="muted-label">Cooling</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Chat Input Bar -->
+      <div class="chat-input-bar">
+        <div class="input-row">
+          <div class="input-wrap">
+            <input
+              type="text"
+              class="chat-input"
+              placeholder="Describe how you feel today..."
+              [(ngModel)]="searchTerm"
+              (keydown.enter)="startConsultation()"
+            />
+            <button class="send-btn btn-gold" (click)="startConsultation()">
+              <span class="material-symbols-outlined">arrow_upward</span>
+            </button>
+          </div>
+          <button class="tool-btn glass" (click)="navigatePage('/medical-report-analyzer')">
+            <span class="material-symbols-outlined text-gold">upload_file</span>
+          </button>
+          <button class="tool-btn glass" (click)="navigatePage('/ai-assistant')">
+            <span class="material-symbols-outlined text-gold">mic</span>
+          </button>
+        </div>
+        <div class="input-footer">
+          <span class="footer-tag">Endorsed by Certified Vaidyas</span>
+          <span class="footer-tag">
+            <span class="dot-gold"></span>
+            AI Medical Report Explainer Active
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side Panel -->
+    <aside class="side-panel right-panel hide-mobile animate-fade-in delay-2000">
+      <div class="side-card glass-dark border-right-gold">
+        <div class="side-card-header text-gold">
+          <span class="material-symbols-outlined">video_chat</span>
+          <span class="label-tag">Live Consultation</span>
+        </div>
+        <div class="doctor-preview">
+          <div class="doctor-avatar">
+            <span class="material-symbols-outlined text-gold">person</span>
+          </div>
+          <div>
+            <p class="doctor-name">Dr. Aarav Sharma</p>
+            <p class="online-status">● Online Now</p>
+          </div>
+        </div>
+        <button class="btn btn-gold full-btn" (click)="startConsultation()">Request Call</button>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- ─── Features Grid Section ─── -->
+  <section class="features-section">
+    <div class="container">
+      <div class="section-header">
+        <div class="badge badge-gold">What We Offer</div>
+        <h2 class="text-gradient-gold">Holistic Ayurvedic Care</h2>
+        <p>Shop authentic Ayurvedic products for holistic wellness today!</p>
+      </div>
+
+      <div class="features-grid">
+        <article *ngFor="let item of whatWeDo; let i = index"
+                 class="feature-card hover-lift animate-slide-up"
+                 [style.animation-delay.ms]="i * 100">
+          <div class="feature-card-icon">
+            <span class="material-symbols-outlined">{{
+              i === 0 ? 'potted_plant' :
+              i === 1 ? 'self_improvement' :
+              i === 2 ? 'spa' :
+              i === 3 ? 'shield_with_heart' :
+              i === 4 ? 'dermatology' :
+              'meditation'
+            }}</span>
+          </div>
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.description }}</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Products Section ─── -->
+  <section class="products-section" id="products">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="text-gradient-gold">Herbal Products</h2>
+        <p>Curated collection of authentic Ayurvedic remedies</p>
+      </div>
+
+      <!-- Category Pills -->
+      <div class="category-pills" *ngIf="categories.length">
+        <button *ngFor="let cat of categories"
+                class="btn btn-pill"
+                [class.btn-gold]="activeCategory === cat.title"
+                [class.btn-glass]="activeCategory !== cat.title"
+                (click)="filterByCategory(cat.title)">
+          {{ cat.title }}
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div class="empty-state" *ngIf="loadingProducts">
+        <span class="material-symbols-outlined icon-xl text-gold animate-pulse-gentle">hourglass_top</span>
+        <p>Loading products...</p>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="product-grid" *ngIf="!loadingProducts && filteredProducts.length">
+        <article *ngFor="let product of filteredProducts"
+                 class="product-card glass-card hover-lift"
+                 (click)="openProduct(product)">
+          <div class="product-img-wrap">
+            <img [src]="product.image" [alt]="product.name" class="product-img" loading="lazy" />
+            <span class="discount-badge" *ngIf="product.discountPercent > 0">-{{ product.discountPercent }}%</span>
+            <span class="category-tag">{{ product.category }}</span>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">{{ product.name }}</h3>
+            <div class="price-row">
+              <span class="price">₹{{ product.price | number: '1.0-0' }}</span>
+              <span class="old-price" *ngIf="product.oldPrice > product.price">₹{{ product.oldPrice | number: '1.0-0' }}</span>
+            </div>
+            <p class="delivery-label">
+              <span class="material-symbols-outlined icon-xs">local_shipping</span>
+              {{ product.deliveryLabel }}
+            </p>
+            <button class="btn btn-gold btn-pill add-cart-btn"
+                    type="button"
+                    (click)="$event.stopPropagation(); addToCart(product)">
+              <span class="material-symbols-outlined icon-sm">shopping_cart</span>
+              Add to Cart
+            </button>
+          </div>
+        </article>
+      </div>
+
+      <!-- No Products -->
+      <div class="empty-state" *ngIf="!loadingProducts && !filteredProducts.length">
+        <span class="material-symbols-outlined icon-xl text-muted">inventory_2</span>
+        <p>No products found for the current filters.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FAQ Section ─── -->
+  <section class="faq-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="text-gradient-gold">Frequently Asked Questions</h2>
+      </div>
+      <div class="faq-list">
+        <article *ngFor="let faq of faqs; let i = index"
+                 class="faq-item glass"
+                 [class.open]="expandedFaqIndex === i">
+          <button type="button" class="faq-toggle" (click)="setFaq(i)">
+            <span>{{ faq.question }}</span>
+            <span class="material-symbols-outlined faq-chevron">{{ expandedFaqIndex === i ? 'expand_less' : 'expand_more' }}</span>
+          </button>
+          <p class="faq-answer" *ngIf="expandedFaqIndex === i">{{ faq.answer }}</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Contact & Newsletter ─── -->
+  <section class="contact-section">
+    <div class="container">
+      <div class="contact-grid">
+        <form class="contact-form glass-dark" (ngSubmit)="submitContact()">
+          <h2 class="text-gradient-gold">Get in Touch</h2>
+          <p class="form-subtitle">Have questions about Ayurvedic wellness? We'd love to hear from you.</p>
+          <div class="form-row-2">
+            <input class="input-glass" placeholder="First Name" [(ngModel)]="contactModel.firstName" name="firstName" required />
+            <input class="input-glass" placeholder="Last Name" [(ngModel)]="contactModel.lastName" name="lastName" />
+          </div>
+          <input class="input-glass" placeholder="Email Address" [(ngModel)]="contactModel.email" name="email" required />
+          <div class="form-row-2">
+            <input class="input-glass" placeholder="Phone Number" [(ngModel)]="contactModel.phone" name="phone" />
+            <input class="input-glass" placeholder="Subject" [(ngModel)]="contactModel.subject" name="subject" />
+          </div>
+          <textarea class="input-glass" placeholder="Your Message" rows="4" [(ngModel)]="contactModel.message" name="message" required></textarea>
+          <button type="submit" class="btn btn-gold btn-lg btn-pill">
+            <span class="material-symbols-outlined">send</span>
+            Send Message
+          </button>
+        </form>
+
+        <!-- Newsletter -->
+        <div class="newsletter-card glass-dark">
+          <span class="material-symbols-outlined icon-xl text-gold">mail</span>
+          <h3>Stay Updated</h3>
+          <p>Get exclusive Ayurvedic health tips, special offers, and wellness insights.</p>
+          <form class="newsletter-form" (ngSubmit)="submitNewsletter()">
+            <div class="newsletter-input-wrap">
+              <input class="input-glass" placeholder="Enter your email" [(ngModel)]="newsletterEmail" name="newsletterEmail" />
+              <button type="submit" class="btn btn-gold">
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scroll Top -->
+  <button class="scroll-top-btn btn-gold" (click)="scrollTop()" aria-label="Scroll to top">
+    <span class="material-symbols-outlined">arrow_upward</span>
+  </button>
+</div>

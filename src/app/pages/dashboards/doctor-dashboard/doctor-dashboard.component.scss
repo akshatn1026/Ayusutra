@@ -1,0 +1,209 @@
+.dashboard-container {
+  width: min(75rem, calc(100% - 2rem));
+  margin: 1rem auto 2rem;
+  padding: clamp(0.8rem, 0.6rem + 0.8vw, 1.4rem);
+  font-family: 'Manrope', sans-serif;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: clamp(1rem, 0.7rem + 1vw, 1.6rem);
+  border-bottom: 1px solid var(--border-700);
+  padding-bottom: clamp(0.6rem, 0.45rem + 0.45vw, 1rem);
+  gap: clamp(0.6rem, 0.45rem + 0.45vw, 1rem);
+  flex-wrap: wrap;
+}
+
+.dashboard-content {
+  display: grid;
+  grid-template-columns: minmax(0, 17rem) minmax(0, 1fr);
+  gap: clamp(0.9rem, 0.6rem + 1vw, 1.4rem);
+}
+
+.patients-list,
+.detail-card {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--border-700);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.patients-list {
+  padding: clamp(0.6rem, 0.45rem + 0.45vw, 1rem);
+  height: fit-content;
+  min-width: 0;
+}
+
+.patient-card {
+  display: flex;
+  align-items: center;
+  padding: clamp(0.55rem, 0.4rem + 0.45vw, 0.75rem);
+  margin-bottom: clamp(0.35rem, 0.25rem + 0.3vw, 0.5rem);
+  border-radius: 0.625rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.patient-card:hover {
+  background-color: rgba(168, 199, 45, 0.16);
+}
+
+.patient-avatar {
+  width: clamp(2rem, 1.8rem + 0.7vw, 2.5rem);
+  height: clamp(2rem, 1.8rem + 0.7vw, 2.5rem);
+  border-radius: 50%;
+  margin-right: clamp(0.5rem, 0.35rem + 0.45vw, 1rem);
+}
+
+.patient-details {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(0.75rem, 0.5rem + 0.8vw, 1.2rem);
+}
+
+.detail-card {
+  padding: clamp(0.8rem, 0.55rem + 0.8vw, 1.2rem);
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.detail-card p {
+  margin: 0.35rem 0;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.progress-bar-container {
+  background-color: rgba(61, 101, 45, 0.16);
+  border-radius: 999px;
+  height: clamp(0.5rem, 0.44rem + 0.2vw, 0.625rem);
+  margin-top: 0.5rem;
+}
+
+.progress-bar {
+  background: var(--emerald-gradient);
+  height: 100%;
+  border-radius: 999px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: clamp(0.5rem, 0.35rem + 0.45vw, 1rem);
+  min-width: 38rem;
+}
+
+th,
+td {
+  padding: clamp(0.45rem, 0.35rem + 0.3vw, 0.75rem);
+  text-align: left;
+  border-bottom: 1px solid rgba(61, 101, 45, 0.2);
+}
+
+th {
+  background-color: rgba(168, 199, 45, 0.2);
+}
+
+.no-patient-selected {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--text-700);
+}
+
+@media (max-width: 980px) {
+  .dashboard-content {
+    grid-template-columns: 1fr;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .doctor-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .doctor-status-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+  }
+
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+
+  input:checked+.slider {
+    background-color: var(--primary-600, #3d652d);
+  }
+
+  input:focus+.slider {
+    box-shadow: 0 0 1px var(--primary-600, #3d652d);
+  }
+
+  input:checked+.slider:before {
+    -webkit-transform: translateX(24px);
+    -ms-transform: translateX(24px);
+    transform: translateX(24px);
+  }
+
+  .slider.round {
+    border-radius: 24px;
+  }
+
+  .slider.round:before {
+    border-radius: 50%;
+  }
+
+  .status-text {
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+}

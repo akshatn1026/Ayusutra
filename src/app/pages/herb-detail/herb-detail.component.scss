@@ -1,0 +1,463 @@
+.page-container {
+  padding: var(--space-lg) var(--page-inline) var(--space-xl);
+}
+
+.page-inner {
+  width: min(100%, 1000px);
+  margin: 0 auto;
+}
+
+.status-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 4rem 2rem;
+  color: var(--ayurvedic-gold);
+  font-weight: 500;
+  text-align: center;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-glass);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(200, 169, 81, 0.2);
+  border-top-color: var(--ayurvedic-gold);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-msg {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  text-align: center;
+  padding: 3rem 2rem;
+  border-radius: var(--radius-xl);
+  font-weight: 500;
+  
+  i {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 1rem;
+    color: #ef4444;
+  }
+  
+  button {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1px solid var(--ayurvedic-gold);
+    color: var(--ayurvedic-gold);
+    padding: 0.6rem 1.2rem;
+    border-radius: var(--radius-full);
+    transition: all 0.2s;
+    
+    &:hover {
+      background: rgba(200, 169, 81, 0.1);
+    }
+  }
+}
+
+.encyclopedia-view {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* TOP SECTION */
+.top-section {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 2.5rem;
+  padding: 2.5rem;
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-card);
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+  }
+}
+
+.herb-image-container {
+  position: relative;
+  
+  .main-herb-image {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: var(--radius-xl);
+    background: var(--dark-herbal);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border: 1px solid var(--border-glass);
+  }
+  
+  .source-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(15, 46, 29, 0.85);
+    backdrop-filter: blur(10px);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--ayurvedic-gold);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    border: 1px solid var(--border-gold);
+    
+    i { margin-right: 0.4rem }
+  }
+}
+
+.basic-info {
+  .title-row {
+    margin-bottom: 1.5rem;
+    h2 {
+      font-size: 2.8rem;
+      color: var(--warm-sand);
+      margin: 0;
+      line-height: 1.2;
+      font-weight: 800;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+  }
+  
+  .sci-name, .other-names, .family {
+    margin-bottom: 0.8rem;
+    font-size: 1.05rem;
+    
+    .label {
+      font-weight: 600;
+      color: var(--ayurvedic-gold);
+      margin-right: 0.5rem;
+      display: inline-block;
+      width: 130px;
+    }
+    
+    .value {
+      color: var(--text-primary);
+    }
+  }
+  
+  .sci-name .value {
+    font-style: italic;
+    color: var(--text-secondary);
+  }
+  
+  .quick-desc {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-glass);
+    
+    h3 {
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      color: var(--warm-sand);
+    }
+    
+    p {
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+    
+    strong {
+      color: var(--text-primary);
+    }
+  }
+}
+
+/* TABS SECTION */
+.tabs-container {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.tabs-header {
+  display: flex;
+  overflow-x: auto;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--border-glass);
+  
+  button {
+    background: none;
+    border: none;
+    padding: 1.2rem 1.8rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+    
+    &:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    
+    &.active {
+      color: var(--ayurvedic-gold);
+      border-bottom-color: var(--ayurvedic-gold);
+      background: rgba(200, 169, 81, 0.05);
+    }
+  }
+  
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+}
+
+.tab-content {
+  padding: 2.5rem;
+  
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
+}
+
+.tab-pane {
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.content-block {
+  margin-bottom: 2.5rem;
+  
+  &:last-child { margin-bottom: 0; }
+  
+  h3 {
+    font-size: 1.4rem;
+    color: var(--warm-sand);
+    margin-bottom: 1.2rem;
+    border-bottom: 1px solid var(--border-glass);
+    padding-bottom: 0.6rem;
+  }
+  
+  p {
+    line-height: 1.8;
+    color: var(--text-secondary);
+    white-space: pre-wrap;
+    font-size: 1.05rem;
+  }
+}
+
+/* AI Explanation Box */
+.header-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-glass);
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.6rem;
+  
+  h3 { border: none; margin: 0; padding: 0; }
+}
+
+.ai-btn {
+  background: linear-gradient(135deg, var(--ayurvedic-gold), #9e853f);
+  color: var(--dark-herbal);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow-gold);
+  
+  i { margin-right: 0.5rem; }
+  
+  &:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(200, 169, 81, 0.4);
+  }
+}
+
+.ai-explanation-box {
+  margin-top: 2rem;
+  background: rgba(200, 169, 81, 0.05);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+  
+  .ai-header {
+    background: rgba(200, 169, 81, 0.15);
+    padding: 1rem 1.5rem;
+    color: var(--warm-sand);
+    font-size: 1rem;
+    border-bottom: 1px solid var(--border-gold);
+    
+    i { margin-right: 0.6rem; color: var(--ayurvedic-gold); }
+  }
+  
+  .ai-body {
+    padding: 1.5rem;
+    color: var(--text-primary);
+    line-height: 1.8;
+    font-size: 1.05rem;
+  }
+}
+
+.typing-indicator {
+  display: inline-flex;
+  gap: 4px;
+  margin-right: 12px;
+  
+  span {
+    display: block;
+    width: 5px;
+    height: 5px;
+    background: var(--ayurvedic-gold);
+    border-radius: 50%;
+    animation: typing 1s infinite;
+  }
+  
+  span:nth-child(2) { animation-delay: 0.2s; }
+  span:nth-child(3) { animation-delay: 0.4s; }
+}
+
+/* Warnings and Alerts */
+.warning-banner {
+  background: rgba(245, 158, 11, 0.1);
+  color: #fcd34d;
+  padding: 1.2rem 1.5rem;
+  border-radius: var(--radius-lg);
+  border-left: 4px solid #f59e0b;
+  margin-bottom: 2.5rem;
+  font-weight: 500;
+  font-size: 1.05rem;
+  
+  i { margin-right: 0.8rem; font-size: 1.2rem; }
+}
+
+.two-col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+  
+  .info-box {
+    padding: 1.8rem;
+    border-radius: var(--radius-xl);
+    border: 1px solid transparent;
+    
+    h4 {
+      margin: 0 0 1rem 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+    p {
+      margin: 0;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    
+    &.green-box {
+      background: rgba(16, 185, 129, 0.05);
+      border-color: rgba(16, 185, 129, 0.2);
+      h4 { color: #34d399; }
+    }
+    
+    &.yellow-box {
+      background: rgba(245, 158, 11, 0.05);
+      border-color: rgba(245, 158, 11, 0.2);
+      h4 { color: #fbd38d; }
+    }
+  }
+}
+
+.compounds-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  
+  li {
+    padding: 1.2rem;
+    border-bottom: 1px dashed var(--border-glass);
+    line-height: 1.7;
+    color: var(--text-secondary);
+    
+    strong {
+      color: var(--ayurvedic-gold);
+      display: inline-block;
+      margin-right: 0.6rem;
+      font-size: 1.1rem;
+    }
+    
+    &:last-child { border-bottom: none; }
+  }
+}
+
+.related-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  
+  .related-tag {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-glass);
+    color: var(--text-primary);
+    padding: 0.6rem 1.2rem;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: rgba(200, 169, 81, 0.15);
+      border-color: var(--ayurvedic-gold);
+      color: var(--ayurvedic-gold);
+      transform: translateY(-2px);
+    }
+  }
+}
+
+.action-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+  padding-bottom: 2rem;
+  
+  button {
+    background: transparent;
+    border: 1px solid var(--border-glass);
+    color: var(--text-secondary);
+    padding: 0.8rem 1.5rem;
+    border-radius: 30px;
+    transition: all 0.3s;
+    font-size: 1rem;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      border-color: var(--text-secondary);
+    }
+  }
+}

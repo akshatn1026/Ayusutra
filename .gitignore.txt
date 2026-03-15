@@ -1,0 +1,28 @@
+cd C:\Users\Aksha\OneDrive\Attachments\Desktop\ayustra
+```
+
+Open `.gitignore` in any editor and make sure it contains:
+```
+# Dependencies
+node_modules/
+
+# Environment variables - NEVER commit these
+.env
+.env.local
+.env.production
+
+# Build output
+dist/
+.angular/
+
+# Database files
+*.db
+*.sqlite
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

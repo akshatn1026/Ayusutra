@@ -1,0 +1,48 @@
+<div class="page-container">
+  <div class="page-inner">
+    <section class="profile-card">
+      <h2>My Profile</h2>
+
+      <div *ngIf="user" class="profile-grid">
+        <div class="avatar">
+          <img [src]="avatarUrl" alt="avatar">
+        </div>
+        <div class="info">
+          <div *ngIf="!editMode">
+            <h3>{{ user.fullName }}</h3>
+            <p>{{ patientData?.wellnessMessage }}</p>
+            <p><strong>Phone:</strong> {{ user.phone }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <div *ngIf="latestDoshaAssessment" class="dosha-summary">
+              <p><strong>Latest Dosha Result:</strong> {{ latestDoshaAssessment.result }}</p>
+              <p><strong>Prakriti:</strong> {{ latestDoshaAssessment.prakriti.primary || latestDoshaAssessment.primaryDosha }}</p>
+              <p><strong>Vikriti:</strong> {{ latestDoshaAssessment.vikriti.dominant || 'Balanced' }}</p>
+              <p><strong>Prakriti %:</strong> Vata {{ latestDoshaAssessment.prakriti.percentages.vata }}, Pitta {{ latestDoshaAssessment.prakriti.percentages.pitta }}, Kapha {{ latestDoshaAssessment.prakriti.percentages.kapha }}</p>
+              <p><strong>Submitted:</strong> {{ latestDoshaAssessment.submittedAt | date:'medium' }}</p>
+            </div>
+            <button class="btn" (click)="editMode = true">Edit Profile</button>
+            <a routerLink="/dosha-assessment" class="btn btn-ghost">Take Dosha Assessment</a>
+            <a routerLink="/dosha-report" class="btn btn-ghost">View Dosha Report</a>
+            <a routerLink="/diet-plan" class="btn btn-ghost">Diet Plan</a>
+            <a routerLink="/daily-routine" class="btn btn-ghost">Daily Routine</a>
+          </div>
+
+          <div *ngIf="editMode">
+            <label>Full Name</label>
+            <input [(ngModel)]="model.fullName" />
+            <label>Phone</label>
+            <input [(ngModel)]="model.phone" />
+            <label>Email</label>
+            <input [(ngModel)]="model.email" />
+            <label>Wellness Message</label>
+            <textarea [(ngModel)]="model.wellnessMessage"></textarea>
+            <div class="actions">
+              <button class="btn" (click)="save()">Save</button>
+              <button class="btn btn-ghost" (click)="editMode = false">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

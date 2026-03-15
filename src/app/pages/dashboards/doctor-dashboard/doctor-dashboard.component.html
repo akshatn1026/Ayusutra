@@ -1,0 +1,245 @@
+<div class="dashboard-container">
+  <div class="dashboard-shell" *ngIf="!isLoading && !loadError">
+  <!-- Incoming Requests Overlay -->
+  <div class="emergency-overlay" *ngIf="incomingRequests.length > 0">
+    <div class="emergency-card" *ngFor="let req of incomingRequests">
+      <span class="material-symbols-outlined icon-huge text-danger blink" *ngIf="req.type === 'emergency'">warning</span>
+      <span class="material-symbols-outlined icon-huge text-info blink" *ngIf="req.type === 'standard'">info</span>
+      <h2 *ngIf="req.type === 'emergency'">URGENT: Emergency Consultation Request</h2>
+      <h2 *ngIf="req.type === 'standard'">New Consultation Request</h2>
+      <p><strong>Patient:</strong> {{ req.patientName }}</p>
+      <p *ngIf="req.type === 'standard'"><strong>Type:</strong> <span class="badge text-bg-light">{{ req.consultationType | titlecase }}</span></p>
+      <p>Time: {{ req.timestamp | date:'shortTime' }}</p>
+      
+      <div class="emergency-actions mt-3">
+        <button class="btn" [ngClass]="{'btn-danger': req.type === 'emergency', 'btn-primary': req.type === 'standard'}" (click)="acceptRequest(req)">Accept & Join</button>
+        <button class="btn btn-outline" (click)="rejectRequest(req)">Decline</button>
+      </div>
+    </div>
+  </div>
+
+  <header class="dashboard-header">
+    <h1>Doctor Dashboard</h1>
+    <div class="doctor-info">
+      Welcome, <strong>{{ doctorName }}</strong>
+      <div class="doctor-status-toggle">
+        <label class="switch">
+          <input type="checkbox" [(ngModel)]="isOnline" (change)="toggleStatus()">
+          <span class="slider round"></span>
+        </label>
+        <span class="status-text" [ngClass]="{'text-success': isOnline, 'text-muted': !isOnline}">
+          {{ isOnline ? 'Online' : 'Offline' }}
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-content">
+    <div class="patients-list">
+      <h2>Your Patients</h2>
+        <div class="patient-card" *ngFor="let p of patients" (click)="selectPatient(p)">
+            <img [src]="p.avatarUrl" alt="{{ p.name }}" class="patient-avatar">
+            <span>{{ p.name }}</span>
+          </div>
+    </div>
+
+    <div class="patient-details" *ngIf="selectedPatient">
+      <h2>{{ selectedPatient.name }}'s Dashboard</h2>
+
+      <div class="details-grid">
+        <div class="detail-card full-width">
+          <h3>Today's Consultation Schedule</h3>
+          <ul *ngIf="todaySchedule.length; else noTodayConsults">
+            <li *ngFor="let item of todaySchedule">
+              {{ item.scheduledTime | date:'short' }} - {{ item.patientName || item.patientId }} | {{ item.mode | uppercase }}
+            </li>
+          </ul>
+          <ng-template #noTodayConsults>
+            <p>No consultations scheduled today.</p>
+          </ng-template>
+        </div>
+
+        <div class="detail-card full-width">
+          <h3>Consultation History</h3>
+          <ul *ngIf="consultationHistory.length; else noConsultHistory">
+            <li *ngFor="let item of consultationHistory">
+              {{ item.scheduledTime | date:'short' }} - {{ item.patientName || item.patientId }} | {{ item.status }}
+            </li>
+          </ul>
+          <ng-template #noConsultHistory>
+            <p>No completed/cancelled consultations yet.</p>
+          </ng-template>
+        </div>
+
+        <div class="detail-card">
+          <h3>Wellness Message</h3>
+          <p>{{ selectedPatient.wellnessMessage }}</p>
+        </div>
+
+        <div class="detail-card">
+          <h3>Recovery Progress</h3>
+          <div class="progress-bar-container">
+            <div class="progress-bar" [style.width.%]="selectedPatient.recoveryProgress"></div>
+          </div>
+          <span>{{ selectedPatient.recoveryProgress }}%</span>
+        </div>
+        
+        <div class="detail-card">
+          <h3>Upcoming Appointments</h3>
+          <ul>
+            <li *ngFor="let appointment of selectedPatient.appointments; let i = index">
+              {{ appointment.date }} at {{ appointment.time }} - Status: {{ appointment.status }}
+              <button *ngIf="appointment.status !== 'Confirmed'" class="btn" (click)="confirmAppointment(selectedPatient.id, i)">Confirm</button>
+            </li>
+          </ul>
+        </div>
+
+        <div class="detail-card">
+          <h3>Dosha Assessment</h3>
+          <ng-container *ngIf="getLatestAssessment(selectedPatient.id) as latest; else noDoshaData">
+            <p><strong>Result:</strong> {{ latest.result }}</p>
+            <p><strong>Label:</strong> Self-Reported</p>
+            <p><strong>Prakriti:</strong> {{ latest.prakriti.primary || latest.primaryDosha }}</p>
+            <p><strong>Vikriti:</strong> {{ latest.vikriti.dominant || 'Balanced' }}</p>
+            <p><strong>Imbalance Severity:</strong> {{ latest.vikriti.severity }}</p>
+            <p *ngIf="latest.secondaryDosha"><strong>Secondary:</strong> {{ latest.secondaryDosha }}</p>
+            <p><strong>Prakriti %:</strong> Vata {{ latest.prakriti.percentages.vata }} | Pitta {{ latest.prakriti.percentages.pitta }} | Kapha {{ latest.prakriti.percentages.kapha }}</p>
+            <p><strong>Submitted:</strong> {{ latest.submittedAt | date:'medium' }}</p>
+            <p><strong>Valid Till:</strong> {{ latest.validTill | date:'mediumDate' }}</p>
+            <div *ngIf="getAssessmentTrend(selectedPatient.id).length > 1">
+              <p><strong>Trend (latest 3):</strong></p>
+              <ul>
+                <li *ngFor="let t of getAssessmentTrend(selectedPatient.id)">
+                  {{ t.assessmentDate | date:'shortDate' }} - {{ t.prakriti.primary }} / {{ t.vikriti.dominant }}
+                </li>
+              </ul>
+            </div>
+          </ng-container>
+          <ng-template #noDoshaData>
+            <p>No assessment submitted yet.</p>
+          </ng-template>
+        </div>
+
+        <div class="detail-card">
+          <h3>Personalized Aahar Plan (Read-only)</h3>
+          <ng-container *ngIf="getPatientDietPlan(selectedPatient.id) as diet; else noDietPlan">
+            <p><strong>Basis:</strong> {{ diet.basis.line }}</p>
+            <p><strong>Season:</strong> {{ diet.season }}</p>
+            <p><strong>Pacify:</strong> {{ diet.dosha }}</p>
+            <p><strong>Meals:</strong></p>
+            <ul>
+              <li *ngFor="let meal of diet.meals">
+                {{ meal.name }}: {{ meal.items.join(', ') }}
+              </li>
+            </ul>
+            <p><strong>Avoid:</strong> {{ diet.avoid.join(', ') }}</p>
+            <p><strong>Note:</strong> Doctor can reference this plan during consultation; edits are not allowed here.</p>
+          </ng-container>
+          <ng-template #noDietPlan>
+            <p>Diet plan will appear after dosha assessment.</p>
+          </ng-template>
+        </div>
+
+        <div class="detail-card">
+          <h3>Dinacharya & Ritucharya (Read-only)</h3>
+          <ng-container *ngIf="getPatientRoutinePlan(selectedPatient.id) as routinePlan; else noRoutinePlan">
+            <p><strong>Basis:</strong> {{ routinePlan.basis.line }}</p>
+            <p><strong>Season:</strong> {{ routinePlan.season }} | <strong>Timezone:</strong> {{ routinePlan.timezone }}</p>
+            <ul>
+              <li *ngFor="let step of routinePlan.routine">
+                {{ step.time }} - {{ step.block }}: {{ step.details }}
+              </li>
+            </ul>
+            <p><strong>Note:</strong> Doctor can reference this routine during consultation; edits are not allowed here.</p>
+          </ng-container>
+          <ng-template #noRoutinePlan>
+            <p>Routine plan will appear after dosha assessment.</p>
+          </ng-template>
+        </div>
+
+        <div class="detail-card">
+          <h3>Therapy Requests</h3>
+          <ng-container *ngIf="getPatientTherapyRequests(selectedPatient.id).length > 0; else noTherapyRequests">
+            <div *ngFor="let req of getPatientTherapyRequests(selectedPatient.id)">
+              <p><strong>Therapy:</strong> {{ getTherapyName(req.therapyId) }}</p>
+              <p><strong>Status:</strong> {{ req.status }}</p>
+              <p><strong>Preferred Date:</strong> {{ req.preferredDate }}</p>
+              <p><strong>Eligibility:</strong> {{ req.eligibility.reason }}</p>
+              <label>Doctor Notes</label>
+              <input [(ngModel)]="therapyReviewNotes[req.id]" />
+              <button class="btn" (click)="reviewTherapyRequest(req.id, 'approved')">Approve</button>
+              <button class="btn" (click)="reviewTherapyRequest(req.id, 'rejected')">Reject</button>
+              <button class="btn" (click)="reviewTherapyRequest(req.id, 'pending')">Keep Pending</button>
+              <hr />
+            </div>
+          </ng-container>
+          <ng-template #noTherapyRequests>
+            <p>No therapy requests for this patient.</p>
+          </ng-template>
+        </div>
+
+        <div class="detail-card full-width">
+          <h3>Medical History</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Condition</th>
+                <th>Diagnosis Date</th>
+                <th>Treatment</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let record of selectedPatient.medicalHistory">
+                <td>{{ record.condition }}</td>
+                <td>{{ record.diagnosisDate }}</td>
+                <td>{{ record.treatment }}</td>
+                <td>{{ record.status }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="detail-card full-width">
+          <h3>Current Medications</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Dosage</th>
+                <th>Frequency</th>
+                <th>Duration</th>
+                <th>Prescribed By</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let med of selectedPatient.currentMedications">
+                <td>{{ med.name }}</td>
+                <td>{{ med.dosage }}</td>
+                <td>{{ med.frequency }}</td>
+                <td>{{ med.duration }}</td>
+                <td>{{ med.prescribedBy }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <div class="no-patient-selected" *ngIf="!selectedPatient">
+      <h2>Select a patient to view their details</h2>
+    </div>
+  </div>
+
+  <div class="state-container p-4 text-center d-flex flex-column align-items-center justify-content-center h-100" *ngIf="isLoading || loadError">
+    <div *ngIf="isLoading" class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading dashboard...</span>
+    </div>
+    <p *ngIf="isLoading" class="mt-2 text-muted">Loading your dashboard data...</p>
+    
+    <div *ngIf="loadError" class="alert alert-danger">
+      <span class="material-symbols-outlined me-2 align-middle">error</span>
+      {{ loadError }}
+    </div>
+  </div>
+</div>

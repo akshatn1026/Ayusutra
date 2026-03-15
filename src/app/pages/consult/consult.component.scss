@@ -1,0 +1,196 @@
+/* Consult Page — Dark Herbal Theme */
+
+.page-container {
+  padding: var(--space-lg) var(--page-inline) var(--space-xl);
+}
+
+.page-inner {
+  width: min(100%, var(--content-max));
+  margin: 0 auto;
+}
+
+.card {
+  padding: 1.5rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.page-header h1 {
+  margin: 0 0 0.3rem;
+}
+
+.hero-cta-row {
+  margin-top: 0.4rem;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.summary-box {
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 0.9rem;
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: border-color 0.2s ease;
+}
+
+.summary-box:hover {
+  border-color: var(--border-gold);
+}
+
+.summary-box h3,
+.summary-box p {
+  margin: 0;
+}
+
+.grid {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.entry {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 0.9rem;
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: border-color 0.2s ease;
+}
+
+.entry:hover {
+  border-color: var(--border-gold);
+}
+
+.trust-row {
+  display: grid;
+  gap: 0.45rem;
+  border: 1px solid rgba(200, 169, 81, 0.15);
+  border-radius: var(--radius-lg);
+  padding: 0.9rem;
+  background: rgba(200, 169, 81, 0.05);
+  backdrop-filter: blur(16px);
+}
+
+.trust-item {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.helper-text {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.support-block {
+  border-top: 1px solid var(--border-glass);
+  padding-top: 0.7rem;
+}
+
+.support-block h3 {
+  margin: 0 0 0.3rem;
+}
+
+.wizard {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.wizard-step {
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  padding: 1rem;
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.wizard-step.active {
+  border-color: rgba(200, 169, 81, 0.4);
+  box-shadow: 0 0 20px rgba(200, 169, 81, 0.1);
+}
+
+.wizard-step.success {
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.wizard-step h2 {
+  margin: 0 0 0.35rem;
+}
+
+.step-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.45rem;
+}
+
+textarea {
+  width: 100%;
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 0.7rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 56px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+
+.chips {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  margin-top: 0.45rem;
+}
+
+.chips button,
+.chip {
+  background: var(--bg-glass) !important;
+  border: 1px solid var(--border-glass) !important;
+  color: var(--text-secondary) !important;
+  border-radius: var(--radius-full) !important;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chips button:hover,
+.chip:hover {
+  border-color: var(--ayurvedic-gold) !important;
+  color: var(--ayurvedic-gold) !important;
+  background: rgba(200, 169, 81, 0.1) !important;
+}
+
+.chips button.active,
+.chip.active,
+.chips button.selected {
+  background: rgba(200, 169, 81, 0.15) !important;
+  border-color: var(--ayurvedic-gold) !important;
+  color: var(--ayurvedic-gold) !important;
+}
+
+.entry-actions {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 700px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

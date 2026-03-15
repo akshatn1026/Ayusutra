@@ -1,0 +1,11 @@
+<section class="page-container">
+  <div class="page-inner blog-list">
+    <h1>Blog</h1>
+    <article *ngFor="let post of posts" class="blog-card">
+      <h2>{{ post.title }}</h2>
+      <p>{{ post.excerpt }}</p>
+      <p>{{ post.createdAt | date: 'mediumDate' }}</p>
+      <a [routerLink]="['/blog', post.id]">Read article</a>
+    </article>
+  </div>
+</section>

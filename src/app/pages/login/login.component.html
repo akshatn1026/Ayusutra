@@ -1,0 +1,87 @@
+<section class="login-shell">
+  <div class="login-card glass-dark animate-scale-in">
+    <div class="login-brand">
+      <div class="brand-circle">
+        <span class="material-symbols-outlined">auto_awesome</span>
+      </div>
+      <h1 class="text-gradient-gold">Welcome Back</h1>
+      <p class="login-subtitle">Sign in to continue your Ayurvedic wellness journey</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit('patient')" class="login-form">
+      <div *ngIf="redirected" class="info-banner glass">
+        <span class="material-symbols-outlined icon-sm text-gold">info</span>
+        You must sign in to access that page.
+      </div>
+      <div *ngIf="infoMessage" class="info-banner glass">
+        <span class="material-symbols-outlined icon-sm text-gold">info</span>
+        {{ infoMessage }}
+      </div>
+
+      <div class="field-group">
+        <label for="email">
+          <span class="material-symbols-outlined icon-sm">mail</span>
+          Email
+        </label>
+        <input
+          type="email"
+          id="email"
+          class="input-glass"
+          formControlName="email"
+          placeholder="Enter your email"
+          [class.input-error]="email?.invalid && email?.touched"
+        >
+        <div class="field-error" *ngIf="email?.invalid && email?.touched">
+          <span *ngIf="email?.errors?.['required']">Email is required</span>
+          <span *ngIf="email?.errors?.['email']">Please enter a valid email</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label for="password">
+          <span class="material-symbols-outlined icon-sm">lock</span>
+          Password
+        </label>
+        <input
+          type="password"
+          id="password"
+          class="input-glass"
+          formControlName="password"
+          placeholder="Enter your password"
+          [class.input-error]="password?.invalid && password?.touched"
+        >
+        <div class="field-error" *ngIf="password?.invalid && password?.touched">
+          <span *ngIf="password?.errors?.['required']">Password is required</span>
+          <span *ngIf="password?.errors?.['minlength']">Password must be at least 8 characters</span>
+        </div>
+      </div>
+
+      <div class="global-error glass" *ngIf="errorMessage">
+        <span class="material-symbols-outlined icon-sm">error</span>
+        {{ errorMessage }}
+      </div>
+
+      <div class="login-buttons">
+        <button type="button" class="btn btn-gold btn-lg btn-pill" [disabled]="isLoading" (click)="onSubmit('patient')">
+          <span class="material-symbols-outlined icon-sm">person</span>
+          <span *ngIf="!isLoading">Login as Patient</span>
+          <span *ngIf="isLoading && selectedRole === 'patient'">Logging in...</span>
+          <span *ngIf="isLoading && selectedRole !== 'patient'">Please wait...</span>
+        </button>
+
+        <button type="button" class="btn btn-outline-gold btn-lg btn-pill" [disabled]="isLoading" (click)="onSubmit('doctor')">
+          <span class="material-symbols-outlined icon-sm">stethoscope</span>
+          <span *ngIf="!isLoading">Login as Doctor</span>
+          <span *ngIf="isLoading && selectedRole === 'doctor'">Logging in...</span>
+          <span *ngIf="isLoading && selectedRole !== 'doctor'">Please wait...</span>
+        </button>
+      </div>
+
+      <div class="login-links">
+        <a routerLink="/forgot-password" class="text-gold">Forgot Password?</a>
+        <span class="text-muted">Don't have an account?</span>
+        <a routerLink="/register" class="text-gold">Create Account</a>
+      </div>
+    </form>
+  </div>
+</section>

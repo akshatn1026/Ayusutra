@@ -1,0 +1,68 @@
+<section class="page-container">
+  <div class="page-inner">
+    <div class="glass-card card" *ngIf="loading">Loading dosha report...</div>
+
+    <div class="glass-card card" *ngIf="!loading && error">
+      <h2>Dosha Report</h2>
+      <p>{{ error }}</p>
+      <a class="btn btn-outline" routerLink="/dosha-assessment">Go to Assessment</a>
+    </div>
+
+    <div class="glass-card card" *ngIf="!loading && report">
+      <h2>Dosha Report</h2>
+      <p>Assessment Date: {{ report.assessmentDate | date: 'medium' }}</p>
+      <p>Valid Till: {{ report.validTill | date: 'mediumDate' }}</p>
+      <p>{{ supportiveNotice }}</p>
+
+      <div class="result-badge">
+        <p>Your Prakriti (Natural Constitution)</p>
+        <h3>{{ prakritiPrimary }}</h3>
+        <p *ngIf="prakritiSecondary">Secondary: {{ prakritiSecondary }}</p>
+        <p><strong>Confidence:</strong> {{ confidence }}%</p>
+      </div>
+
+      <div class="score-bars">
+        <div class="score-row">
+          <div class="score-label"><span>Vata</span><strong>{{ vataPercent }}%</strong></div>
+          <div class="score-track"><div class="score-fill vata" [style.width.%]="vataPercent"></div></div>
+        </div>
+        <div class="score-row">
+          <div class="score-label"><span>Pitta</span><strong>{{ pittaPercent }}%</strong></div>
+          <div class="score-track"><div class="score-fill pitta" [style.width.%]="pittaPercent"></div></div>
+        </div>
+        <div class="score-row">
+          <div class="score-label"><span>Kapha</span><strong>{{ kaphaPercent }}%</strong></div>
+          <div class="score-track"><div class="score-fill kapha" [style.width.%]="kaphaPercent"></div></div>
+        </div>
+      </div>
+
+      <div class="result-badge">
+        <p>Your Vikriti (Current Imbalance)</p>
+        <h3>{{ vikritiDominant }}</h3>
+        <p>Severity: {{ vikritiSeverity }}</p>
+      </div>
+
+      <p><strong>What this means for you:</strong> {{ patternLine }}</p>
+      <p><strong>How this affects daily life:</strong> {{ dailyImpactLine }}</p>
+      <p><strong>What you can do next:</strong> {{ whatThisMeans }}</p>
+
+      <div class="result-badge" *ngIf="history.length > 1">
+        <p>Dosha Trend History</p>
+        <div class="history-list">
+          <article class="history-item" *ngFor="let item of history | slice:0:6">
+            <p><strong>{{ item.assessmentDate | date: 'mediumDate' }}</strong></p>
+            <p>{{ item.prakriti.primary }}<span *ngIf="item.prakriti.secondary">-{{ item.prakriti.secondary }}</span> | {{ item.vikriti.dominant }}</p>
+            <p>Confidence: {{ item.confidence || 0 }}%</p>
+          </article>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" (click)="generateDietPlan()">View Diet Plan</button>
+        <a class="btn btn-outline" [routerLink]="['/daily-routine']" [queryParams]="{ prakriti: prakritiPrimary, vikriti: vikritiDominant }">View Daily Routine</a>
+        <a class="btn btn-outline" [routerLink]="['/consult']" [queryParams]="{ attachAssessment: report.id }">Consult Doctor</a>
+        <a class="btn btn-outline" [routerLink]="['/dosha-assessment']" [queryParams]="{ source: 'report' }">Reassess</a>
+      </div>
+    </div>
+  </div>
+</section>

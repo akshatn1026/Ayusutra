@@ -1,0 +1,122 @@
+<section class="page-container">
+  <div class="page-inner">
+    <header class="glass-card card page-header">
+      <h1 *ngIf="mode === 'patient-list'">My Prescriptions</h1>
+      <h1 *ngIf="mode === 'patient-view'">Prescription Details</h1>
+      <h1 *ngIf="mode === 'doctor-create'">Ayurvedic Prescription Builder</h1>
+      <p *ngIf="mode === 'patient-list'">Medical records, treatment status, and downloadable prescription documents.</p>
+      <p *ngIf="mode === 'patient-view'">Review finalized medicine plan, dosage schedule, and doctor guidance.</p>
+      <p *ngIf="mode === 'doctor-create'">Prepare and finalize a treatment prescription for completed consultations.</p>
+    </header>
+
+    <section class="glass-card card summary-block" *ngIf="mode === 'patient-list'">
+      <h2>Summary</h2>
+      <p>Total prescriptions: <strong>{{ patientPrescriptions.length }}</strong></p>
+      <p>Most recent update: <strong>{{ patientPrescriptions.length ? (patientPrescriptions[0].createdAt | date:'mediumDate') : 'N/A' }}</strong></p>
+    </section>
+
+    <section class="glass-card card" *ngIf="mode === 'patient-list'">
+      <h2>Prescription Records</h2>
+      <div class="record-list" *ngIf="patientPrescriptions.length; else noRecords">
+        <article class="record-item" *ngFor="let p of patientPrescriptions">
+          <div class="record-meta">
+            <p><strong>ID:</strong> {{ p.prescriptionId || p.id }}</p>
+            <p><strong>Date:</strong> {{ p.createdAt | date:'medium' }}</p>
+            <p><strong>Doctor:</strong> {{ p.doctorName || p.doctorId }}</p>
+            <p><strong>Status:</strong> {{ getPrescriptionStatus(p) }}</p>
+          </div>
+          <div class="record-actions">
+            <button class="btn btn-outline" (click)="viewPrescription(p)">View</button>
+            <button class="btn btn-primary" (click)="downloadPrescription(p)">Download</button>
+          </div>
+        </article>
+      </div>
+      <ng-template #noRecords>
+        <p>No prescriptions available yet.</p>
+      </ng-template>
+    </section>
+
+    <section class="glass-card card support-block" *ngIf="mode === 'patient-list'">
+      <h2>Supporting Guidance</h2>
+      <p>Use this page for records and downloads only. Use My Dashboard for general wellness overview.</p>
+      <div class="actions">
+        <a class="btn btn-outline" routerLink="/dashboard">Go to Dashboard</a>
+        <a class="btn btn-outline" routerLink="/consult">Open Consultations</a>
+      </div>
+    </section>
+
+    <div class="glass-card card" *ngIf="mode !== 'patient-list'">
+      <h2 *ngIf="mode === 'doctor-create'">Prescription Form</h2>
+      <h2 *ngIf="mode === 'patient-view'">Prescription Overview</h2>
+      <p *ngIf="error" class="field-error">{{ error }}</p>
+      <div class="form" *ngIf="!error">
+        <p><strong>Patient:</strong> {{ context.patientName }} | <strong>Age:</strong> {{ context.patientAge }}</p>
+        <p><strong>Doctor:</strong> {{ context.doctorName }} | <strong>Registration:</strong> {{ context.doctorRegistration }}</p>
+        <p><strong>Date:</strong> {{ context.date | date:'medium' }}</p>
+        <p><strong>Consultation Summary:</strong> {{ context.consultationSummary }}</p>
+        <p><strong>Prakriti:</strong> {{ context.prakriti || 'N/A' }} | <strong>Vikriti:</strong> {{ context.vikriti || 'N/A' }}</p>
+
+        <label>Diagnosis</label>
+        <input [(ngModel)]="diagnosis" [disabled]="mode === 'patient-view' || !!saved?.finalized" />
+        <label>General Advice</label>
+        <textarea [(ngModel)]="advice" [disabled]="mode === 'patient-view' || !!saved?.finalized"></textarea>
+        <label>Precautions / Contraindications</label>
+        <textarea [(ngModel)]="precautions" [disabled]="mode === 'patient-view' || !!saved?.finalized"></textarea>
+
+        <div *ngIf="mode === 'doctor-create'">
+          <label>Reuse Previous Prescription (Reference Only)</label>
+          <select [(ngModel)]="selectedReferenceId" [disabled]="!!saved?.finalized">
+            <option value="">Select prescription</option>
+            <option *ngFor="let p of doctorHistory" [value]="p.id">{{ p.id }} | {{ p.diagnosis }} | {{ p.createdAt | date:'shortDate' }}</option>
+          </select>
+          <button class="btn btn-outline" (click)="reuseReference()" [disabled]="!selectedReferenceId || !!saved?.finalized">Copy as Reference</button>
+        </div>
+
+        <h3>Medicines</h3>
+        <div class="item" *ngFor="let item of items; let i = index">
+          <input
+            [(ngModel)]="item.medicine"
+            [name]="'medicine'+i"
+            placeholder="Medicine"
+            (input)="searchMedicine(i, item.medicine)"
+            [disabled]="mode === 'patient-view' || !!saved?.finalized"
+          />
+          <select *ngIf="medicineSuggestions[i]?.length && mode === 'doctor-create' && !saved?.finalized" [ngModel]="''" (ngModelChange)="selectMedicine(i, medicineSuggestions[i][$event])">
+            <option [ngValue]="''">Select medicine</option>
+            <option *ngFor="let s of medicineSuggestions[i]; let idx = index" [ngValue]="idx">{{ s.name }} ({{ s.category }})</option>
+          </select>
+          <input [(ngModel)]="item.form" [name]="'form'+i" placeholder="Form" [disabled]="mode === 'patient-view' || !!saved?.finalized" />
+          <input [(ngModel)]="item.dosage" [name]="'dosage'+i" placeholder="Dosage" [disabled]="mode === 'patient-view' || !!saved?.finalized" />
+          <input [(ngModel)]="item.frequency" [name]="'frequency'+i" placeholder="Frequency" [disabled]="mode === 'patient-view' || !!saved?.finalized" />
+          <input [(ngModel)]="item.duration" [name]="'duration'+i" placeholder="Duration" [disabled]="mode === 'patient-view' || !!saved?.finalized" />
+          <input [(ngModel)]="item.timing" [name]="'timing'+i" placeholder="Timing" [disabled]="mode === 'patient-view' || !!saved?.finalized" />
+          <input [(ngModel)]="item.precautions" [name]="'itemPrecautions'+i" placeholder="Medicine Precautions" [disabled]="mode === 'patient-view' || !!saved?.finalized" />
+          <button class="btn btn-outline" *ngIf="mode === 'doctor-create' && !saved?.finalized" (click)="removeItem(i)">Remove</button>
+        </div>
+
+        <div *ngIf="validationErrors.length">
+          <p class="field-error" *ngFor="let e of validationErrors">{{ e }}</p>
+        </div>
+
+        <label *ngIf="mode === 'doctor-create' && !saved?.finalized">
+          <input type="checkbox" [(ngModel)]="doctorConfirmed" />
+          I confirm this prescription is reviewed and finalized by me.
+        </label>
+
+        <div class="actions">
+          <button class="btn btn-outline" *ngIf="mode === 'doctor-create' && !saved?.finalized" (click)="addItem()">Add Medicine</button>
+          <button class="btn btn-primary" *ngIf="mode === 'doctor-create' && !saved?.finalized" (click)="savePrescription()">Finalize Prescription</button>
+          <button class="btn btn-outline" (click)="downloadPdf()" [disabled]="!(saved || prescriptionId)">Download PDF</button>
+          <button class="btn btn-outline" (click)="sharePrescription()" [disabled]="!(saved || prescriptionId)">Share</button>
+          <button class="btn btn-outline" (click)="goToConsultations()">Back</button>
+        </div>
+        <p *ngIf="status">{{ status }}</p>
+      </div>
+
+      <div class="saved" *ngIf="saved">
+        <p>Prescription created: <strong>{{ saved.prescriptionId || saved.id }}</strong> | Status: <strong>{{ saved.status }}</strong></p>
+        <button class="btn btn-primary" (click)="downloadPdf()">Download & Share PDF</button>
+      </div>
+    </div>
+  </div>
+</section>

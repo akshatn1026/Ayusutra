@@ -1,0 +1,274 @@
+/* ═══════════════════════════════════════════════════════════════════
+   App Shell — Glass Navbar, Ambient Background, Dark Footer
+   ═══════════════════════════════════════════════════════════════════ */
+
+.app-shell {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Header / Glass Navbar ─────────────────────────────────────── */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 1.5rem 1.5rem 0;
+}
+
+.nav-glass {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.brand-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: var(--primary-herbal);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ayurvedic-gold);
+  box-shadow: var(--shadow-gold);
+}
+
+.brand-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--warm-sand);
+  letter-spacing: -0.02em;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.nav-links a {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(245, 245, 220, 0.7);
+  transition: color 0.2s ease;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--ayurvedic-gold);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.nav-icon-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.nav-icon-btn:hover {
+  color: var(--ayurvedic-gold);
+  border-color: rgba(200, 169, 81, 0.3);
+}
+
+.cart-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--ayurvedic-gold);
+  color: var(--dark-herbal);
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-avatar {
+  background: rgba(46, 125, 50, 0.3);
+  border-color: rgba(46, 125, 50, 0.4);
+  color: var(--light-herbal);
+}
+
+.sign-in-btn {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+}
+
+.sign-up-btn {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+}
+
+/* ─── User Dropdown ─────────────────────────────────────────────── */
+.user-menu-wrap {
+  position: relative;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  min-width: 180px;
+  border-radius: var(--radius-xl);
+  padding: 0.5rem;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-dropdown a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+}
+
+.user-dropdown a:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ayurvedic-gold);
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0.25rem 0;
+}
+
+.logout-link {
+  color: rgba(239, 68, 68, 0.7) !important;
+}
+
+.logout-link:hover {
+  color: #ef4444 !important;
+}
+
+/* ─── Main Content ──────────────────────────────────────────────── */
+.main-content {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Footer ────────────────────────────────────────────────────── */
+.site-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 1.5rem 2.5rem;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.footer-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .footer-inner {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.footer-links a {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: var(--ayurvedic-gold);
+}
+
+.footer-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.footer-copy {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.footer-socials {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.social-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.4);
+  transition: color 0.2s ease;
+}
+
+.social-icon:hover {
+  color: var(--ayurvedic-gold);
+}
+
+/* ─── Responsive ────────────────────────────────────────────────── */
+@media (max-width: 1080px) {
+  .nav-glass {
+    padding: 0.5rem 1rem;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .footer-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+}

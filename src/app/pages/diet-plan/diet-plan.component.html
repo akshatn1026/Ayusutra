@@ -1,0 +1,92 @@
+<section class="page-container">
+  <div class="page-inner">
+    <header class="glass-card card page-header">
+      <h1>Diet Plan</h1>
+      <p>Personalized aahar guidance based on your latest dosha pattern and seasonal context.</p>
+    </header>
+
+    <section class="glass-card card" *ngIf="loading">
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-line"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+    </section>
+
+    <section class="glass-card card" *ngIf="!loading && error">
+      <h2>Personalized Aahar</h2>
+      <p>{{ error }}</p>
+      <a class="btn btn-outline" routerLink="/dosha-assessment">Take Dosha Assessment</a>
+    </section>
+
+    <section class="glass-card card summary-card" *ngIf="!loading && plan">
+      <h2>Today&apos;s Focus</h2>
+      <p>{{ todaysFocus }}</p>
+      <p>{{ doshaExplanation }}</p>
+      <div>
+        <h3>Compliance Tips</h3>
+        <ul>
+          <li *ngFor="let tip of complianceTips">{{ tip }}</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="glass-card card" *ngIf="!loading && plan">
+      <h2>Your Personalized Aahar Plan</h2>
+      <p>{{ plan.basis.line }}</p>
+      <p>
+        Pacify Dosha: <strong>{{ plan.dosha }}</strong> |
+        Prakriti: <strong>{{ plan.basis.prakritiPrimary }}<span *ngIf="plan.basis.prakritiSecondary">-{{ plan.basis.prakritiSecondary }}</span></strong> |
+        Vikriti: <strong>{{ plan.basis.vikritiDominant }} ({{ plan.basis.vikritiSeverity }})</strong> |
+        Season (Ritucharya): <strong>{{ plan.season }}</strong>
+      </p>
+      <div class="meals">
+        <div class="meal-card" *ngFor="let meal of plan.meals">
+          <div class="meal-head">
+            <h3>{{ meal.name }}</h3>
+            <button class="btn btn-outline btn-sm" type="button" (click)="toggleMealBookmark(meal.name)">
+              {{ isMealBookmarked(meal.name) ? 'Saved' : 'Save' }}
+            </button>
+          </div>
+          <p *ngIf="meal.explanation">{{ meal.explanation }}</p>
+          <ul>
+            <li *ngFor="let opt of meal.options">
+              <strong>{{ opt.recommendation }}:</strong> {{ opt.item }}
+              <span> - {{ opt.reason }}</span>
+            </li>
+            <ng-container *ngIf="!meal.options || meal.options.length === 0">
+              <li *ngFor="let item of meal.items">Recommended: {{ item }}</li>
+            </ng-container>
+          </ul>
+        </div>
+      </div>
+      <p *ngIf="!plan.meals?.length" class="empty-state">Meal plan will appear once dosha-based generation is complete.</p>
+
+      <div class="avoid-card">
+        <h3>Avoid Foods</h3>
+        <ul>
+          <li *ngFor="let item of plan.avoid">{{ item }}</li>
+        </ul>
+      </div>
+
+      <div class="avoid-card" *ngIf="plan.tips?.length">
+        <h3>Simple Tips</h3>
+        <ul>
+          <li *ngFor="let tip of plan.tips">{{ tip }}</li>
+        </ul>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" (click)="downloadPdf()">Download PDF</button>
+      </div>
+    </section>
+
+    <section class="glass-card card support-card" *ngIf="!loading && plan">
+      <h2>Supporting Guidance</h2>
+      <p>Revisit this page daily and adjust only with doctor approval if symptoms shift or appetite changes.</p>
+      <div class="actions">
+        <a class="btn btn-outline" routerLink="/daily-routine">Open Daily Routine</a>
+        <a class="btn btn-outline" routerLink="/consult">Review Consultations</a>
+      </div>
+    </section>
+  </div>
+</section>

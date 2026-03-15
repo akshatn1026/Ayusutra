@@ -1,0 +1,186 @@
+<section class="page-container">
+  <div class="page-inner">
+    
+    <div class="status-message glass-card" *ngIf="loading">
+      <div class="spinner"></div>
+      <span>Consulting encyclopedias & AI synthesizing knowledge...</span>
+    </div>
+
+    <div class="glass-card card error-msg" *ngIf="!loading && error">
+      <i class="fas fa-exclamation-circle"></i> {{ error }}
+      <button class="btn btn-primary" routerLink="/herbs">Back to Search</button>
+    </div>
+
+    <div class="encyclopedia-view" *ngIf="!loading && herb">
+      <!-- Top Section: Image + Basic Info -->
+      <div class="top-section glass-card">
+        <div class="herb-image-container">
+          <img [src]="herb.image_url || 'assets/images/leaf-placeholder.png'" [alt]="herb.herb_name" class="main-herb-image">
+          <div class="source-badge">
+            <i class="fas" [ngClass]="herb.source_info === 'cache' ? 'fa-database' : 'fa-brain'"></i>
+            {{ herb.source_info === 'cache' ? 'Cached Entry' : 'AI Synthesized' }}
+          </div>
+        </div>
+
+        <div class="basic-info">
+          <div class="title-row">
+            <h2>{{ herb.herb_name }}</h2>
+          </div>
+          <div class="sci-name">
+            <span class="label">Scientific Name:</span>
+            <span class="value">{{ herb.scientific_name || 'N/A' }}</span>
+          </div>
+          <div class="other-names">
+            <span class="label">Other Names:</span>
+            <span class="value">{{ herb.other_names || 'N/A' }}</span>
+          </div>
+          <div class="family">
+            <span class="label">Plant Family:</span>
+            <span class="value">{{ herb.family || 'N/A' }}</span>
+          </div>
+          
+          <div class="quick-desc">
+            <h3>Botanical Description</h3>
+            <p>{{ herb.description || 'N/A' }}</p>
+            <p><strong>Parts Used:</strong> {{ herb.parts_used || 'N/A' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Section: Tabs -->
+      <div class="tabs-container glass-card">
+        <div class="tabs-header">
+          <button [class.active]="activeTab === 'overview'" (click)="setActiveTab('overview')">Overview</button>
+          <button [class.active]="activeTab === 'benefits'" (click)="setActiveTab('benefits')">Benefits</button>
+          <button [class.active]="activeTab === 'uses'" (click)="setActiveTab('uses')">Uses</button>
+          <button [class.active]="activeTab === 'dosage'" (click)="setActiveTab('dosage')">Dosage & Safety</button>
+          <button [class.active]="activeTab === 'compounds'" (click)="setActiveTab('compounds')" *ngIf="herb.compounds?.length">Compounds</button>
+          <button [class.active]="activeTab === 'research'" (click)="setActiveTab('research')">Research</button>
+          <button [class.active]="activeTab === 'related'" (click)="setActiveTab('related')" *ngIf="herb.related_herbs?.length">Related</button>
+        </div>
+
+        <div class="tab-content">
+          <!-- Overview -->
+          <div *ngIf="activeTab === 'overview'" class="tab-pane">
+            <div class="content-block">
+              <h3>Preparation Methods</h3>
+              <p>{{ herb.preparation_methods || 'Not comprehensively recorded' }}</p>
+            </div>
+            <div class="content-block">
+              <h3>Ayurvedic Profile</h3>
+              <p>{{ herb.ayurvedic_uses || 'Not comprehensively recorded' }}</p>
+            </div>
+          </div>
+
+          <!-- Benefits & AI Explanation -->
+          <div *ngIf="activeTab === 'benefits'" class="tab-pane">
+            <div class="content-block benefits-block">
+              <div class="header-with-action">
+                <h3>Health Benefits</h3>
+                <button class="ai-btn" (click)="generateAiExplanation()">
+                  <i class="fas fa-magic"></i> AI Simple Explanation
+                </button>
+              </div>
+              <p class="main-text">{{ herb.benefits || 'Not comprehensively recorded' }}</p>
+              
+              <!-- AI Box -->
+              <div class="ai-explanation-box" *ngIf="showAiExplanation">
+                <div class="ai-header">
+                  <i class="fas fa-sparkles"></i> <strong>Simplified Explanation</strong>
+                </div>
+                <div class="ai-body" *ngIf="aiLoading">
+                  <span class="typing-indicator"><span></span><span></span><span></span></span> Generating...
+                </div>
+                <div class="ai-body" *ngIf="!aiLoading">
+                  {{ aiExplanationText }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Uses -->
+          <div *ngIf="activeTab === 'uses'" class="tab-pane">
+            <div class="content-block">
+              <h3>Classical Ayurvedic Uses</h3>
+              <p>{{ herb.ayurvedic_uses || 'Not comprehensively recorded' }}</p>
+            </div>
+            <div class="content-block">
+              <h3>Modern Medicinal Uses</h3>
+              <p>{{ herb.modern_uses || 'Not comprehensively recorded' }}</p>
+            </div>
+            <div class="content-block">
+              <h3>Diseases Treated</h3>
+              <p>{{ herb.diseases_treated || 'Not comprehensively recorded' }}</p>
+            </div>
+          </div>
+
+          <!-- Dosage & Safety -->
+          <div *ngIf="activeTab === 'dosage'" class="tab-pane">
+            <div class="warning-banner">
+               <i class="fas fa-exclamation-triangle"></i>
+               Always consult a qualified Ayurvedic practitioner before starting any herbal regimen.
+            </div>
+            <div class="two-col-grid">
+              <div class="info-box green-box">
+                <h4>Recommended Dosage</h4>
+                <p>{{ herb.recommended_dosage || 'Not comprehensively recorded' }}</p>
+              </div>
+              <div class="info-box yellow-box">
+                <h4>Safe Consumption Limits</h4>
+                <p>{{ herb.safe_consumption_limits || 'Not comprehensively recorded' }}</p>
+              </div>
+            </div>
+            
+            <div class="content-block mt-3">
+              <h3>Precautions & Side Effects</h3>
+              <p>{{ herb.precautions || 'Not comprehensively recorded' }}</p>
+            </div>
+            
+            <div class="content-block">
+              <h3>Pregnancy Warnings</h3>
+              <p>{{ herb.pregnancy_warnings || 'Not comprehensively recorded' }}</p>
+            </div>
+            
+            <div class="content-block">
+              <h3>Known Drug Interactions</h3>
+              <p>{{ herb.drug_interactions || 'Not comprehensively recorded' }}</p>
+            </div>
+          </div>
+
+          <!-- Compounds -->
+          <div *ngIf="activeTab === 'compounds'" class="tab-pane">
+            <h3>Active Phytochemicals</h3>
+            <ul class="compounds-list">
+              <li *ngFor="let c of herb.compounds">
+                <strong>{{ c.name }}:</strong> {{ c.description }}
+              </li>
+            </ul>
+          </div>
+
+          <!-- Research -->
+          <div *ngIf="activeTab === 'research'" class="tab-pane">
+            <div class="content-block">
+              <h3>Scientific & Pharmacological Evidence</h3>
+              <p>{{ herb.research_summary || 'Not comprehensively recorded' }}</p>
+            </div>
+          </div>
+
+          <!-- Related Herbs -->
+          <div *ngIf="activeTab === 'related'" class="tab-pane">
+            <h3>Related Herbs</h3>
+            <div class="related-tags">
+              <span class="related-tag" *ngFor="let rh of herb.related_herbs" routerLink="/herbs" [queryParams]="{q: rh}">
+                {{ rh }}
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      
+      <div class="action-footer">
+         <button class="btn btn-secondary" routerLink="/herbs">Back to Encyclopedia Search</button>
+      </div>
+    </div>
+  </div>
+</section>

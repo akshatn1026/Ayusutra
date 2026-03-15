@@ -1,0 +1,36 @@
+<section class="page-container">
+  <div class="page-inner">
+    <div class="glass-card card">
+      <h2>Notifications & Reminders</h2>
+      <div class="frequency-control">
+        <p><strong>Notification Frequency</strong></p>
+        <div class="frequency-actions">
+          <button class="btn btn-outline" [class.active]="frequency === 'realtime'" [disabled]="savingPreference" (click)="updateFrequency('realtime')">
+            Realtime
+          </button>
+          <button class="btn btn-outline" [class.active]="frequency === 'balanced'" [disabled]="savingPreference" (click)="updateFrequency('balanced')">
+            Balanced
+          </button>
+          <button class="btn btn-outline" [class.active]="frequency === 'minimal'" [disabled]="savingPreference" (click)="updateFrequency('minimal')">
+            Minimal
+          </button>
+        </div>
+        <small>
+          Realtime: more updates. Balanced: high-value only. Minimal: only critical or time-sensitive alerts.
+        </small>
+      </div>
+      <div class="entry" *ngFor="let n of notifications">
+        <div>
+          <p><strong>{{ n.title }}</strong></p>
+          <p>{{ n.message }}</p>
+          <small>
+            {{ n.createdAt | date: 'short' }} | {{ n.channels.join(', ') }}
+            <span *ngIf="n.valueScore"> | Value: {{ n.valueScore }}/100</span>
+          </small>
+        </div>
+        <button class="btn btn-outline" *ngIf="!n.seen" (click)="markSeen(n.id)">Mark Seen</button>
+      </div>
+      <p *ngIf="!notifications.length">No notifications available.</p>
+    </div>
+  </div>
+</section>

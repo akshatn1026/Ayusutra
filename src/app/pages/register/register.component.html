@@ -1,0 +1,207 @@
+<section class="signup-shell">
+  <div class="signup-card glass-card">
+    <header class="signup-header">
+      <h1>Create Account</h1>
+      <p>Create your Ayusutra account in seconds.</p>
+    </header>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form signup-form" novalidate>
+      <div class="role-selector" *ngIf="!forcedRole">
+        <label class="form-label" style="display:block; margin-bottom: 0.5rem; font-weight: 600;">Register As</label>
+        <div class="role-cards-grid">
+          <button type="button" class="role-card" [class.active]="selectedRole === 'patient'" (click)="selectRole('patient')">
+            <span class="role-icon">👤</span>
+            <span class="role-name">Patient</span>
+          </button>
+          <button type="button" class="role-card" [class.active]="selectedRole === 'doctor'" (click)="selectRole('doctor')">
+            <span class="role-icon">🩺</span>
+            <span class="role-name">Doctor</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <div class="field-wrap">
+          <span class="field-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M12 12.75a5.25 5.25 0 1 0-5.25-5.25A5.26 5.26 0 0 0 12 12.75Zm0 1.5c-4.33 0-7.5 2.15-7.5 5.1a.75.75 0 0 0 1.5 0c0-1.9 2.27-3.6 6-3.6s6 1.7 6 3.6a.75.75 0 0 0 1.5 0c0-2.95-3.17-5.1-7.5-5.1Z"/></svg>
+          </span>
+          <input
+            id="fullName"
+            type="text"
+            formControlName="fullName"
+            placeholder="Enter your full name"
+            autocomplete="name"
+            [class.error]="fullName?.invalid && fullName?.touched"
+            [attr.aria-invalid]="fullName?.invalid && fullName?.touched"
+          >
+        </div>
+        <div class="error-message" *ngIf="fullName?.invalid && fullName?.touched">
+          <span *ngIf="fullName?.errors?.['required']">Please enter your full name.</span>
+          <span *ngIf="fullName?.errors?.['minlength']">Full name must be at least 2 characters.</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <div class="field-wrap">
+          <span class="field-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M3.75 5.25A2.25 2.25 0 0 0 1.5 7.5v9A2.25 2.25 0 0 0 3.75 18.75h16.5A2.25 2.25 0 0 0 22.5 16.5v-9a2.25 2.25 0 0 0-2.25-2.25Zm0 1.5h16.5A.75.75 0 0 1 21 7.5v.27l-9 5.4-9-5.4V7.5a.75.75 0 0 1 .75-.75Zm-.75 2.77 8.61 5.17a.75.75 0 0 0 .78 0L21 9.52v6.98a.75.75 0 0 1-.75.75H3.75a.75.75 0 0 1-.75-.75Z"/></svg>
+          </span>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="Enter your email address"
+            autocomplete="email"
+            [class.error]="email?.invalid && email?.touched"
+            [attr.aria-invalid]="email?.invalid && email?.touched"
+          >
+        </div>
+        <div class="error-message" *ngIf="email?.invalid && email?.touched">
+          <span *ngIf="email?.errors?.['required']">Email address is required.</span>
+          <span *ngIf="email?.errors?.['email']">Please enter a valid email address.</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="field-wrap">
+          <span class="field-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M17.25 9h-.75V7.5a4.5 4.5 0 0 0-9 0V9h-.75A2.25 2.25 0 0 0 4.5 11.25v8.25a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-8.25A2.25 2.25 0 0 0 17.25 9Zm-8.25-1.5a3 3 0 0 1 6 0V9H9Zm9 12a.75.75 0 0 1-.75.75H6.75A.75.75 0 0 1 6 19.5v-8.25a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 .75.75Z"/><path d="M12 13.5a1.5 1.5 0 0 0-.75 2.8v1.45a.75.75 0 0 0 1.5 0V16.3A1.5 1.5 0 0 0 12 13.5Z"/></svg>
+          </span>
+          <input
+            id="password"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="Minimum 8 characters"
+            autocomplete="new-password"
+            [class.error]="password?.invalid && password?.touched"
+            [attr.aria-invalid]="password?.invalid && password?.touched"
+          >
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePassword('password')"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+          >
+            {{ showPassword ? 'Hide' : 'Show' }}
+          </button>
+        </div>
+        <div class="strength-meter" *ngIf="password?.value">
+          <div class="meter-track" aria-hidden="true">
+            <span
+              class="meter-fill"
+              [style.width.%]="(passwordStrengthScore / 6) * 100"
+              [class.weak]="passwordStrengthLabel === 'Weak'"
+              [class.medium]="passwordStrengthLabel === 'Medium'"
+              [class.strong]="passwordStrengthLabel === 'Strong'"
+            ></span>
+          </div>
+          <p class="meter-label">Password strength: <strong>{{ passwordStrengthLabel }}</strong></p>
+        </div>
+        <div class="error-message" *ngIf="password?.invalid && password?.touched">
+          <span *ngIf="password?.errors?.['required']">Password is required.</span>
+          <span *ngIf="password?.errors?.['minlength']">Password must be at least 8 characters.</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <div class="field-wrap">
+          <span class="field-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M17.25 9h-.75V7.5a4.5 4.5 0 0 0-9 0V9h-.75A2.25 2.25 0 0 0 4.5 11.25v8.25a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-8.25A2.25 2.25 0 0 0 17.25 9Zm-8.25-1.5a3 3 0 0 1 6 0V9H9Zm9 12a.75.75 0 0 1-.75.75H6.75A.75.75 0 0 1 6 19.5v-8.25a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 .75.75Z"/><path d="M10.94 15.94a.75.75 0 0 1-1.06 0L8.94 15a.75.75 0 0 1 1.06-1.06l.41.41 3.59-3.59a.75.75 0 1 1 1.06 1.06Z"/></svg>
+          </span>
+          <input
+            id="confirmPassword"
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            formControlName="confirmPassword"
+            placeholder="Re-enter your password"
+            autocomplete="new-password"
+            [class.error]="(confirmPassword?.invalid || registerForm.errors?.['passwordMismatch']) && confirmPassword?.touched"
+            [attr.aria-invalid]="(confirmPassword?.invalid || registerForm.errors?.['passwordMismatch']) && confirmPassword?.touched"
+          >
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePassword('confirmPassword')"
+            [attr.aria-label]="showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'"
+          >
+            {{ showConfirmPassword ? 'Hide' : 'Show' }}
+          </button>
+        </div>
+        <div class="error-message" *ngIf="confirmPassword?.touched">
+          <span *ngIf="confirmPassword?.errors?.['required']">Please confirm your password.</span>
+          <span *ngIf="registerForm.errors?.['passwordMismatch']">Passwords do not match.</span>
+        </div>
+      </div>
+
+      <ng-container *ngIf="isDoctorSignup">
+        <div class="form-group">
+          <label for="medicalLicense">Medical License Number</label>
+          <div class="field-wrap border-only">
+            <input id="medicalLicense" type="text" formControlName="medicalLicense" placeholder="Enter Registration Number"
+                   [class.error]="medicalLicense?.invalid && medicalLicense?.touched">
+          </div>
+          <div class="error-message" *ngIf="medicalLicense?.invalid && medicalLicense?.touched">Required for doctors.</div>
+        </div>
+
+        <div class="form-group">
+          <label for="specialization">Specialization</label>
+          <div class="field-wrap border-only">
+            <input id="specialization" type="text" formControlName="specialization" placeholder="e.g. Ayurvedic Medicine"
+                   [class.error]="specialization?.invalid && specialization?.touched">
+          </div>
+          <div class="error-message" *ngIf="specialization?.invalid && specialization?.touched">Required for doctors.</div>
+        </div>
+
+        <div class="grid-two">
+          <div class="form-group">
+            <label for="experience">Years of Experience</label>
+            <div class="field-wrap border-only">
+              <input id="experience" type="number" formControlName="experience" placeholder="e.g. 5" min="0"
+                     [class.error]="experience?.invalid && experience?.touched">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="consultationFee">Consultation Fee</label>
+            <div class="field-wrap border-only">
+              <input id="consultationFee" type="number" formControlName="consultationFee" placeholder="INR" min="0"
+                     [class.error]="consultationFee?.invalid && consultationFee?.touched">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="clinicName">Clinic / Hospital Name</label>
+          <div class="field-wrap border-only">
+            <input id="clinicName" type="text" formControlName="clinicName" placeholder="Where do you practice?"
+                   [class.error]="clinicName?.invalid && clinicName?.touched">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Upload Medical License Document</label>
+          <div class="field-wrap border-only">
+            <input type="file" accept=".pdf,.jpg,.jpeg,.png">
+            <small class="helper-text ml-2">PDF, JPG, PNG formats up to 5MB.</small>
+          </div>
+        </div>
+      </ng-container>
+
+      <div class="error-message global-error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit" class="btn-primary create-btn" [disabled]="!canSubmit">
+        <span class="spinner" *ngIf="isLoading" aria-hidden="true"></span>
+        <span>{{ isLoading ? 'Creating Account...' : 'Create Account' }}</span>
+      </button>
+
+      <p class="auth-switch">
+        Already have an account?
+        <a routerLink="/login">Login</a>
+      </p>
+    </form>
+  </div>
+</section>

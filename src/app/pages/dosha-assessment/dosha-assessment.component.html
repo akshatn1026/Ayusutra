@@ -1,0 +1,199 @@
+<section class="dosha-page">
+  <div class="dosha-hero glass-card">
+    <div class="dosha-hero-overlay"></div>
+    <div class="dosha-hero-content">
+      <p class="hero-kicker">Ayurvedic Intelligence</p>
+      <h1>Dosha Assessment</h1>
+      <p class="hero-subtext">
+        This assessment follows classical Ayurvedic principles. Answer honestly based on long-term habits, not temporary changes.
+      </p>
+    </div>
+  </div>
+
+  <section class="glass-card summary-card">
+    <h2>Assessment Summary</h2>
+    <p *ngIf="latestRecord">
+      Last assessment: {{ latestRecord.submittedAt | date: 'mediumDate' }} |
+      Prakriti: <strong>{{ latestRecord.prakriti.primary }}</strong> |
+      Vikriti: <strong>{{ latestRecord.vikriti.dominant }}</strong> |
+      Confidence: <strong>{{ latestRecord.confidence || 0 }}%</strong>
+    </p>
+    <p *ngIf="!latestRecord">No completed assessment yet. Begin with the guided questionnaire below.</p>
+  </section>
+
+  <div class="dosha-container">
+    <div class="dosha-card glass-card" *ngIf="stage === 'loading'">
+      <div class="card-header">
+        <h2>Preparing Assessment</h2>
+      </div>
+      <p>Loading your latest dosha profile and assessment framework...</p>
+    </div>
+
+    <div class="dosha-card glass-card" *ngIf="stage === 'valid'">
+      <div class="card-header">
+        <h2>Assessment Validity</h2>
+      </div>
+      <p>Your latest assessment is still valid until {{ validTillDate | date: 'mediumDate' }}.</p>
+      <p>{{ reassessPromptText }}</p>
+      <div class="form-actions">
+        <button type="button" class="btn-nav-step ghost" (click)="useExistingAssessment()">Use Existing Report</button>
+        <button type="button" class="btn-nav-step" (click)="requestReassessment()">Reassess</button>
+      </div>
+      <p class="validation-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    </div>
+
+    <div class="dosha-card glass-card" *ngIf="stage === 'intro'">
+      <div class="card-header">
+        <h2>Before You Begin</h2>
+      </div>
+      <p>This assessment determines your Prakriti (natural constitution) and Vikriti (current imbalance).</p>
+      <p>Answer each question based on your long-term tendencies. Recent symptoms will be asked separately.</p>
+      <div class="form-actions">
+        <button type="button" class="btn-nav-step" (click)="startAssessment()">Start Assessment</button>
+      </div>
+      <p class="result-summary" *ngIf="infoMessage">{{ infoMessage }}</p>
+    </div>
+
+    <div class="dosha-card glass-card" *ngIf="stage === 'prakriti' || stage === 'vikriti'">
+      <div class="card-header">
+        <h2 *ngIf="stage === 'prakriti'">Prakriti Questionnaire</h2>
+        <h2 *ngIf="stage === 'vikriti'">Recent Symptoms (Last 2–4 weeks)</h2>
+        <p>Step {{ stage === 'vikriti' ? totalSteps : currentStep + 1 }} of {{ totalSteps }}</p>
+      </div>
+
+      <div class="progress-shell">
+        <div class="progress-track">
+          <div class="progress-fill" [style.width.%]="progressPercent"></div>
+        </div>
+        <div class="step-dots" *ngIf="stage === 'prakriti'">
+          <button
+            type="button"
+            class="step-dot"
+            *ngFor="let q of questions; let i = index"
+            [class.active]="i === currentStep"
+            [class.completed]="i < currentStep"
+            (click)="goToStep(i)"
+            [attr.aria-label]="'Go to step ' + (i + 1)"
+          ></button>
+        </div>
+      </div>
+
+      <form [formGroup]="assessmentForm" (ngSubmit)="onSubmit()" class="dosha-form" novalidate>
+        <div class="question-block" *ngIf="stage === 'prakriti'">
+          <div class="question-header">
+            <span class="question-index">Q{{ currentStep + 1 }}</span>
+            <div>
+              <p class="question-category">{{ currentSectionLabel }}</p>
+              <p class="result-summary">{{ currentSectionPurpose }}</p>
+              <h3>{{ activeQuestion.prompt }}</h3>
+            </div>
+          </div>
+
+          <div class="options-grid">
+            <label class="option-card" *ngFor="let option of activeQuestion.options; let idx = index" [class.selected]="getAnswerControl(activeQuestion.key).value === option.key">
+              <input type="radio" [name]="activeQuestion.key" [value]="option.key" [formControl]="getAnswerControl(activeQuestion.key)" />
+              <span class="option-dosha">Option {{ idx + 1 }}</span>
+              <span class="option-text">{{ option.label }}</span>
+            </label>
+          </div>
+
+          <p class="validation-error" *ngIf="getAnswerControl(activeQuestion.key).invalid && (getAnswerControl(activeQuestion.key).touched || submitAttempted)">
+            Please choose one option to continue.
+          </p>
+        </div>
+
+        <div class="question-block" *ngIf="stage === 'vikriti'">
+          <p class="question-category">Symptoms do not define Prakriti. They indicate current imbalance only.</p>
+          <div class="options-grid">
+            <label class="option-card">
+              <input type="checkbox" [checked]="noSymptoms" (change)="toggleNoSymptoms($any($event.target).checked)" />
+              <span class="option-dosha">No recent symptoms</span>
+            </label>
+            <label class="option-card" *ngFor="let symptom of symptoms">
+              <input type="checkbox" [checked]="symptomSelections[symptom.key]" (change)="toggleSymptom(symptom.key, $any($event.target).checked)" />
+              <span class="option-dosha">Symptom</span>
+              <span class="option-text">{{ symptom.label }}</span>
+              <select
+                *ngIf="symptomSelections[symptom.key]"
+                [ngModel]="symptomSeverity[symptom.key]"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="setSeverity(symptom.key, $event)"
+              >
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </label>
+          </div>
+          <p class="validation-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+          <p class="result-summary" *ngIf="lastAutoSavedAt">Auto-saved: {{ lastAutoSavedAt | date: 'shortTime' }}</p>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-nav-step ghost" (click)="goToPreviousStep()" [disabled]="stage === 'prakriti' && currentStep === 0">
+            Previous
+          </button>
+          <button type="button" class="btn-nav-step" *ngIf="stage === 'prakriti'" (click)="goToNextStep()">Next</button>
+          <button type="submit" class="btn-nav-step" *ngIf="stage === 'vikriti'" [disabled]="submitInProgress">
+            {{ submitInProgress ? 'Submitting...' : 'Submit Assessment' }}
+          </button>
+        </div>
+        <p class="result-summary">{{ supportiveNotice }}</p>
+        <p class="validation-error" *ngIf="safetyNotice">{{ safetyNotice }}</p>
+      </form>
+    </div>
+
+    <div class="result-card glass-card" *ngIf="latestRecord">
+      <div class="result-head">
+        <h2>Latest Assessment</h2>
+        <p>Submitted on {{ latestRecord.submittedAt | date: 'medium' }}</p>
+      </div>
+
+      <div class="result-badge">
+        <p>Prakriti</p>
+        <h3>{{ latestRecord.prakriti.primary }}</h3>
+        <p *ngIf="latestRecord.prakriti.secondary">Secondary: {{ latestRecord.prakriti.secondary }}</p>
+      </div>
+
+      <div class="score-bars">
+        <div class="score-row">
+          <div class="score-label">
+            <span>Vata</span>
+            <strong>{{ latestRecord.prakriti.percentages.vata }}%</strong>
+          </div>
+          <div class="score-track"><div class="score-fill vata" [style.width.%]="latestRecord.prakriti.percentages.vata"></div></div>
+        </div>
+        <div class="score-row">
+          <div class="score-label">
+            <span>Pitta</span>
+            <strong>{{ latestRecord.prakriti.percentages.pitta }}%</strong>
+          </div>
+          <div class="score-track"><div class="score-fill pitta" [style.width.%]="latestRecord.prakriti.percentages.pitta"></div></div>
+        </div>
+        <div class="score-row">
+          <div class="score-label">
+            <span>Kapha</span>
+            <strong>{{ latestRecord.prakriti.percentages.kapha }}%</strong>
+          </div>
+          <div class="score-track"><div class="score-fill kapha" [style.width.%]="latestRecord.prakriti.percentages.kapha"></div></div>
+        </div>
+      </div>
+
+      <div class="history-block" *ngIf="assessmentHistory.length > 1">
+        <h3>Assessment History</h3>
+        <div class="history-list">
+          <article class="history-item" *ngFor="let record of assessmentHistory">
+            <p><strong>{{ record.submittedAt | date: 'mediumDate' }}</strong></p>
+            <p>Prakriti: {{ record.prakriti.primary }}<span *ngIf="record.prakriti.secondary">-{{ record.prakriti.secondary }}</span></p>
+            <p>Vikriti: {{ record.vikriti.dominant }} ({{ record.vikriti.severity }})</p>
+          </article>
+        </div>
+      </div>
+
+      <div class="why-block">
+        <h3>Why Reassessment Matters</h3>
+        <p>Prakriti stays relatively stable, while vikriti can shift with stress, sleep, diet, and season. Reassessment keeps guidance accurate.</p>
+      </div>
+    </div>
+  </div>
+</section>

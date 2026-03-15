@@ -1,0 +1,850 @@
+/* ═══════════════════════════════════════════════════════════════════
+   Home Page — AI Chat Hero + Dark Herbal Theme
+   ═══════════════════════════════════════════════════════════════════ */
+
+.home-page {
+  position: relative;
+  overflow: hidden;
+}
+
+/* ─── Floating Herbs Ambient ─────────────────────────────────── */
+.floating-herbs {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.herb-1 {
+  position: absolute;
+  top: 25%;
+  left: 25%;
+  font-size: 3.5rem;
+  color: var(--light-herbal);
+  opacity: 0.15;
+}
+
+.herb-2 {
+  position: absolute;
+  bottom: 25%;
+  right: 33%;
+  font-size: 5rem;
+  color: var(--leaf-green);
+  opacity: 0.08;
+}
+
+.herb-3 {
+  position: absolute;
+  top: 50%;
+  right: 5%;
+  font-size: 3rem;
+  color: var(--ayurvedic-gold);
+  opacity: 0.12;
+}
+
+/* ─── Main Layout ───────────────────────────────────────────── */
+.home-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 2rem 1.5rem;
+  min-height: calc(100vh - 120px);
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Side Panels ───────────────────────────────────────────── */
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 20rem;
+  flex-shrink: 0;
+}
+
+.side-card {
+  padding: 1.5rem;
+  border-radius: var(--radius-2xl);
+}
+
+.border-left-gold {
+  border-left: 4px solid var(--ayurvedic-gold);
+}
+
+.border-right-gold {
+  border-right: 4px solid var(--ayurvedic-gold);
+}
+
+.side-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.label-tag {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.side-card-text {
+  font-size: 0.875rem;
+  color: rgba(245, 245, 220, 0.8);
+  line-height: 1.6;
+  font-style: italic;
+}
+
+.herb-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.herb-icon-box {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-lg);
+  background: rgba(46, 125, 50, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.herb-preview h4 {
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-family: var(--font-body);
+}
+
+.muted-label {
+  font-size: 0.625rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Doctor preview */
+.doctor-preview {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.doctor-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: rgba(200, 169, 81, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.doctor-name {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.online-status {
+  font-size: 0.75rem;
+  color: #34d399;
+}
+
+.full-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-lg);
+}
+
+/* ─── Chat Container ────────────────────────────────────────── */
+.chat-container {
+  flex: 1;
+  max-width: 56rem;
+  height: calc(100vh - 160px);
+  max-height: 750px;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-3xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.chat-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem 3rem;
+}
+
+/* ─── Hero Center ───────────────────────────────────────────── */
+.hero-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 36rem;
+  margin: 0 auto 3rem;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 1.1;
+  margin: 1.5rem 0 1rem;
+}
+
+.hero-subtitle {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* ─── Chat Messages ─────────────────────────────────────────── */
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+.message {
+  display: flex;
+  gap: 1rem;
+}
+
+.user-message {
+  justify-content: flex-end;
+}
+
+.msg-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.msg-avatar.gold {
+  background: var(--ayurvedic-gold);
+  color: var(--dark-herbal);
+}
+
+.msg-avatar.green {
+  background: var(--primary-herbal);
+  color: var(--light-herbal);
+}
+
+.msg-bubble {
+  padding: 1.5rem;
+  border-radius: var(--radius-xl);
+}
+
+.msg-bubble.border-left-gold {
+  border-left: 2px solid var(--ayurvedic-gold);
+  border-radius: var(--radius-xl);
+  border-top-left-radius: 0;
+}
+
+.user-bubble {
+  border-top-right-radius: 0;
+  max-width: 80%;
+}
+
+.msg-bubble p {
+  color: var(--text-primary);
+  line-height: 1.7;
+  font-size: 0.9375rem;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* Insight grid */
+.insight-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.insight-card {
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+}
+
+.insight-card.gold-accent {
+  background: rgba(200, 169, 81, 0.05);
+  border: 1px solid rgba(200, 169, 81, 0.2);
+}
+
+.insight-card.green-accent {
+  background: rgba(76, 175, 80, 0.05);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.insight-card h4 {
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-body);
+}
+
+.insight-card.gold-accent h4 { color: var(--ayurvedic-gold); }
+.insight-card.green-accent h4 { color: var(--leaf-green); }
+
+.insight-card p {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Protocol */
+.protocol-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  font-family: var(--font-body);
+}
+
+.herb-protocol-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.herb-pill {
+  text-align: center;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  transition: border-color 0.2s ease;
+}
+
+.herb-pill:hover {
+  border-color: rgba(200, 169, 81, 0.5);
+}
+
+.herb-pill strong {
+  font-size: 0.875rem;
+}
+
+/* ─── Chat Input Bar ──────────────────────────────────────── */
+.chat-input-bar {
+  padding: 1.5rem 2rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.input-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+.input-wrap {
+  flex: 1;
+  position: relative;
+}
+
+.chat-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-xl);
+  padding: 1.25rem 1.5rem;
+  padding-right: 3.5rem;
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  transition: all 0.3s ease;
+}
+
+.chat-input::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.chat-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(200, 169, 81, 0.5);
+  border-color: transparent;
+}
+
+.send-btn {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.send-btn:hover {
+  transform: translateY(-50%) scale(1.1);
+}
+
+.tool-btn {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.tool-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.input-footer {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.footer-tag {
+  font-size: 0.55rem;
+  color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.dot-gold {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ayurvedic-gold);
+}
+
+/* ─── Features Section ──────────────────────────────────────── */
+.features-section {
+  padding: 5rem 0;
+  position: relative;
+  z-index: 1;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.features-section .feature-card h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+}
+
+.features-section .feature-card p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ─── Products Section ──────────────────────────────────────── */
+.products-section {
+  padding: 3rem 0 5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.category-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.category-pills .btn {
+  font-size: 0.75rem;
+  padding: 0.5rem 1rem;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.product-card {
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+}
+
+.product-img-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  margin-bottom: 0;
+}
+
+.product-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.product-card:hover .product-img {
+  transform: scale(1.05);
+}
+
+.discount-badge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: var(--ayurvedic-gold);
+  color: var(--dark-herbal);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-full);
+  box-shadow: 0 2px 8px rgba(200, 169, 81, 0.3);
+}
+
+.category-tag {
+  position: absolute;
+  bottom: 0.75rem;
+  right: 0.75rem;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.3rem 0.5rem;
+  border-radius: var(--radius-md);
+}
+
+.product-info {
+  padding: 1rem 1.25rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.product-name {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-body);
+  color: var(--warm-sand);
+}
+
+.price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.price {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--ayurvedic-gold);
+  font-family: var(--font-body);
+}
+
+.old-price {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.delivery-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.icon-xs {
+  font-size: 0.875rem;
+}
+
+.add-cart-btn {
+  width: 100%;
+  font-size: 0.8rem;
+  padding: 0.6rem 1rem;
+  margin-top: auto;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+}
+
+.empty-state .material-symbols-outlined {
+  margin-bottom: 1rem;
+}
+
+/* ─── FAQ Section ───────────────────────────────────────────── */
+.faq-section {
+  padding: 5rem 0;
+  position: relative;
+  z-index: 1;
+}
+
+.faq-list {
+  max-width: 48rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.faq-item {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+}
+
+.faq-item.open {
+  border-color: var(--border-gold);
+}
+
+.faq-toggle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: left;
+  gap: 1rem;
+}
+
+.faq-chevron {
+  color: var(--ayurvedic-gold);
+  transition: transform 0.3s ease;
+}
+
+.faq-answer {
+  padding: 0 1.5rem 1.25rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* ─── Contact Section ───────────────────────────────────────── */
+.contact-section {
+  padding: 5rem 0;
+  position: relative;
+  z-index: 1;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .contact-grid {
+    grid-template-columns: 1.5fr 1fr;
+  }
+}
+
+.contact-form {
+  padding: 2.5rem;
+  border-radius: var(--radius-2xl);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contact-form h2 {
+  font-size: 2rem;
+  margin-bottom: 0.25rem;
+}
+
+.form-subtitle {
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  font-size: 0.9375rem;
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.contact-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.newsletter-card {
+  padding: 2.5rem;
+  border-radius: var(--radius-2xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.newsletter-card h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.newsletter-card p {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  max-width: 20rem;
+}
+
+.newsletter-form {
+  width: 100%;
+}
+
+.newsletter-input-wrap {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.newsletter-input-wrap .input-glass {
+  border-radius: var(--radius-lg);
+}
+
+/* ─── Scroll Top Button ─────────────────────────────────────── */
+.scroll-top-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+  box-shadow: var(--shadow-gold);
+  transition: transform 0.2s ease;
+}
+
+.scroll-top-btn:hover {
+  transform: scale(1.1);
+}
+
+/* ─── Responsive ────────────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .side-panel {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-layout {
+    padding: 1rem;
+  }
+
+  .chat-container {
+    height: calc(100vh - 140px);
+    border-radius: var(--radius-2xl);
+  }
+
+  .chat-body {
+    padding: 1.5rem;
+  }
+
+  .hero-title {
+    font-size: 2.25rem;
+  }
+
+  .insight-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .herb-protocol-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .chat-input-bar {
+    padding: 1rem;
+  }
+
+  .input-footer {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .form-row-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .herb-protocol-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-title {
+    font-size: 1.75rem;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+  }
+}

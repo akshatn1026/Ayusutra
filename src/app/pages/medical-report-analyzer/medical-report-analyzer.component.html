@@ -1,0 +1,239 @@
+<section class="page-container medical-report-page">
+  <div class="page-inner">
+    <header class="glass-card card page-header">
+      <h1>Medical Report Analyzer</h1>
+      <p>
+        Upload a blood test, lab panel, or diagnostic report and get an easy-to-understand explanation of key values.
+      </p>
+    </header>
+
+    <section class="glass-card card upload-card" aria-labelledby="upload-title">
+      <h2 id="upload-title">Upload Report</h2>
+      <div class="upload-layout">
+        <div
+          class="drop-zone"
+          [class.drag-active]="dragActive"
+          [class.has-file]="!!selectedFile"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+        >
+          <input
+            #fileInput
+            type="file"
+            [accept]="acceptedFileExtensions"
+            (change)="onFileInputChanged($event)"
+            aria-label="Upload medical report file"
+          >
+          <div class="drop-content">
+            <h3>{{ selectedFile ? selectedFile.name : 'Drag and drop report here' }}</h3>
+            <p *ngIf="selectedFile">
+              {{ formatBytes(selectedFile.size) }} · Ready for analysis
+            </p>
+            <p *ngIf="!selectedFile">
+              Supports PDF, JPG, PNG · Max file size 10MB
+            </p>
+          </div>
+        </div>
+
+        <div class="upload-actions">
+          <button type="button" class="btn btn-outline" (click)="fileInput.click()" [disabled]="isAnalyzing">
+            Choose File
+          </button>
+          <button type="button" class="btn btn-outline" (click)="clearSelectedFile()" [disabled]="isAnalyzing || !selectedFile">
+            Clear
+          </button>
+          <button type="button" class="btn btn-primary" (click)="analyzeSelectedFile()" [disabled]="!canAnalyze || !userCanUpload">
+            {{ isAnalyzing ? 'Analyzing...' : 'Analyze Report' }}
+          </button>
+          <p class="upload-note">Uploaded reports are private to your account and can be deleted anytime.</p>
+        </div>
+      </div>
+
+      <div class="progress-wrap" *ngIf="isAnalyzing || uploadProgress > 0">
+        <div class="progress-track" role="progressbar" [attr.aria-valuenow]="uploadProgress" aria-valuemin="0" aria-valuemax="100">
+          <span class="progress-fill" [style.width.%]="uploadProgress"></span>
+        </div>
+        <span class="progress-label">{{ uploadProgress }}%</span>
+      </div>
+
+      <div class="analysis-loading" *ngIf="isAnalyzing" aria-live="polite">
+        <span class="pulse-dot"></span>
+        <span class="pulse-dot"></span>
+        <span class="pulse-dot"></span>
+        <p>Extracting text and analyzing medical values...</p>
+      </div>
+
+      <p class="role-warning" *ngIf="!userCanUpload">
+        Please login as a patient account to upload medical reports.
+      </p>
+      <p class="banner error" *ngIf="errorMessage">{{ errorMessage }}</p>
+      <p class="banner success" *ngIf="successMessage">{{ successMessage }}</p>
+    </section>
+
+    <div class="dashboard-layout">
+      <aside class="glass-card card history-card" aria-labelledby="history-title">
+        <div class="history-head">
+          <h2 id="history-title">Report History</h2>
+          <button type="button" class="btn btn-ghost" (click)="loadReportHistory()" [disabled]="isLoadingHistory">
+            Refresh
+          </button>
+        </div>
+
+        <div class="history-loading" *ngIf="isLoadingHistory">Loading reports...</div>
+        <p class="history-empty" *ngIf="!isLoadingHistory && reports.length === 0">
+          No reports uploaded yet.
+        </p>
+
+        <div class="history-list" *ngIf="!isLoadingHistory && reports.length > 0">
+          <article class="history-item" *ngFor="let report of reports; trackBy: trackByReportId" [class.active]="activeReport?.id === report.id">
+            <button type="button" class="history-open" (click)="openReport(report.id)">
+              <strong>{{ report.fileName }}</strong>
+              <span>{{ formatReportDate(report.uploadedAt) }}</span>
+            </button>
+            <button
+              type="button"
+              class="history-delete"
+              (click)="deleteReport(report, $event)"
+              [disabled]="deletingReportId === report.id"
+              [attr.aria-label]="'Delete report ' + report.fileName"
+            >
+              {{ deletingReportId === report.id ? 'Deleting...' : 'Delete' }}
+            </button>
+          </article>
+        </div>
+      </aside>
+
+      <section class="glass-card card results-card" aria-labelledby="result-title">
+        <h2 id="result-title">Analysis Dashboard</h2>
+        <p class="result-loading" *ngIf="isLoadingReport">Loading selected report...</p>
+
+        <ng-container *ngIf="activeReport && activeAnalysis; else emptyResult">
+          <ng-container *ngIf="activeAnalysis as analysis">
+          <header class="result-head">
+            <div>
+              <h3>{{ activeReport.fileName }}</h3>
+              <p>Uploaded: {{ formatReportDate(activeReport.uploadedAt) }}</p>
+            </div>
+          </header>
+
+          <section class="summary-grid">
+            <article class="summary-widget score-widget">
+              <h4>Health Score</h4>
+              <div class="score-ring" [ngStyle]="healthScoreStyle" aria-hidden="true">
+                <div class="score-inner">
+                  <strong>{{ healthScore }}%</strong>
+                  <span>{{ healthScoreLabel }}</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="summary-widget indicator-widget">
+              <h4>Health Indicators</h4>
+              <div class="status-row" *ngFor="let bar of statusBars">
+                <div class="status-label">
+                  <span>{{ bar.label }}</span>
+                  <strong>{{ statusCount(bar.key) }}</strong>
+                </div>
+                <div class="status-track">
+                  <span class="status-fill" [ngClass]="bar.cssClass" [style.width.%]="statusBarWidth(bar.key)"></span>
+                </div>
+              </div>
+            </article>
+
+            <article class="summary-widget summary-widget-main">
+              <h4>Health Summary</h4>
+              <ul>
+                <li *ngFor="let highlight of analysis.summary.highlights">{{ highlight }}</li>
+              </ul>
+              <p class="overall-recommendation">{{ analysis.summary.overallRecommendation }}</p>
+            </article>
+          </section>
+
+          <section class="parameter-section">
+            <h4>Detected Parameters</h4>
+            <p class="empty-parameters" *ngIf="analysis.parameters.length === 0">
+              No supported parameters were detected. Try a clearer report image/PDF.
+            </p>
+
+            <div class="parameter-grid" *ngIf="analysis.parameters.length > 0">
+              <article class="parameter-card" *ngFor="let parameter of analysis.parameters; trackBy: trackByParameterId">
+                <header class="parameter-head">
+                  <h5>{{ parameter.testName }}</h5>
+                  <span class="status-pill" [ngClass]="parameterStatusClass(parameter.status)">
+                    {{ parameter.status }}
+                  </span>
+                </header>
+
+                <div class="parameter-values">
+                  <p class="value">{{ parameter.value }} {{ parameter.unit }}</p>
+                  <p class="range">Normal range: {{ parameter.normalRange }}</p>
+                </div>
+
+                <div class="range-visual">
+                  <div class="range-track">
+                    <span class="range-marker" [style.left.%]="parameterMarkerOffset(parameter)"></span>
+                  </div>
+                </div>
+
+                <p class="explanation">{{ parameter.explanation }}</p>
+
+                <div class="tag-block" *ngIf="parameter.possibleCauses.length > 0">
+                  <h6>Possible causes</h6>
+                  <div class="tag-list">
+                    <span *ngFor="let cause of parameter.possibleCauses">{{ cause }}</span>
+                  </div>
+                </div>
+
+                <div class="tag-block">
+                  <h6>General suggestions</h6>
+                  <div class="tag-list">
+                    <span *ngFor="let tip of parameter.suggestions">{{ tip }}</span>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="follow-up">
+            <h4>Ask Follow-up Question</h4>
+            <p>Example: “Why is my hemoglobin low?” or “Give me a summary of this report”.</p>
+            <div class="follow-up-row">
+              <input
+                type="text"
+                [(ngModel)]="followUpQuestion"
+                placeholder="Ask about your report..."
+                aria-label="Ask follow-up question"
+                (keyup.enter)="askFollowUp()"
+              >
+              <button type="button" class="btn btn-primary" (click)="askFollowUp()">Ask</button>
+            </div>
+            <p class="follow-up-answer" *ngIf="followUpAnswer">{{ followUpAnswer }}</p>
+          </section>
+
+          <section class="trusted-links" *ngIf="analysis.trustedResources.length > 0">
+            <h4>Trusted Health Information</h4>
+            <a
+              *ngFor="let resource of analysis.trustedResources"
+              [href]="resource.url"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {{ resource.label }}
+            </a>
+          </section>
+
+          <p class="disclaimer">{{ analysis.disclaimer }}</p>
+          </ng-container>
+        </ng-container>
+
+        <ng-template #emptyResult>
+          <div class="empty-result">
+            <h3>No report selected</h3>
+            <p>Upload and analyze your first medical report to view insights here.</p>
+          </div>
+        </ng-template>
+      </section>
+    </div>
+  </div>
+</section>

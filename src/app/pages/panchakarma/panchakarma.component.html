@@ -1,0 +1,22 @@
+<section class="page-container">
+  <div class="page-inner">
+    <div class="glass-card card">
+      <h2>Panchakarma & Therapy</h2>
+      <p *ngIf="accessMessage">{{ accessMessage }}</p>
+      <div class="grid">
+        <div class="entry" *ngFor="let therapy of visibleTherapies">
+          <h3>{{ therapy.name }}</h3>
+          <p>{{ therapy.description }}</p>
+          <p><strong>Category:</strong> {{ therapy.category === 'panchakarma' ? 'Panchakarma' : 'Supportive Therapy' }}</p>
+          <p><strong>Benefits:</strong> {{ therapy.primaryIndications.join(', ') }}</p>
+          <p><strong>Who it is for:</strong> {{ therapy.doshaIndications.recommendedFor.join(', ') }}</p>
+          <p><strong>Safety notes:</strong> {{ therapy.contraindications.join(', ') }}</p>
+          <p><strong>Eligibility:</strong> {{ getEligibilityText(therapy.id) }}</p>
+          <p><strong>Pre:</strong> {{ therapy.preTherapyGuidelines.join(', ') }}</p>
+          <p><strong>Post:</strong> {{ therapy.postTherapyCare.join(', ') }}</p>
+          <button class="btn btn-primary" (click)="book(therapy.id)">Request Booking</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

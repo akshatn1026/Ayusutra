@@ -1,0 +1,41 @@
+<section class="trust-strip">
+  <div class="container trust-row">
+    <p class="trust-title">Trust & Transparency</p>
+    <div class="trust-pills">
+      <button class="trust-pill" (click)="open('privacy')">Data Privacy</button>
+      <button class="trust-pill" (click)="open('credentials')">
+        Doctor Credentials: {{ verifiedDoctors }}/{{ totalDoctors }} verified
+      </button>
+      <button class="trust-pill" (click)="open('disclaimer')">Medical Disclaimer</button>
+    </div>
+  </div>
+</section>
+
+<div class="trust-modal-shell" *ngIf="activePanel" (click)="close()">
+  <article class="trust-modal" (click)="$event.stopPropagation()">
+    <header class="trust-modal-head">
+      <h3 *ngIf="activePanel === 'privacy'">Data Privacy</h3>
+      <h3 *ngIf="activePanel === 'credentials'">Doctor Credentials</h3>
+      <h3 *ngIf="activePanel === 'disclaimer'">Medical Disclaimer</h3>
+      <button class="btn btn-outline" (click)="close()">Close</button>
+    </header>
+
+    <div class="trust-modal-body" *ngIf="activePanel === 'privacy'">
+      <p>We store only care-essential data and keep authentication, session, and consultation records protected.</p>
+      <p>Consultation continuity data is available only to the patient and the assigned doctor for care delivery.</p>
+      <p>Last transparency update: {{ todayLabel }}.</p>
+    </div>
+
+    <div class="trust-modal-body" *ngIf="activePanel === 'credentials'">
+      <p>{{ verifiedDoctors }} of {{ totalDoctors }} doctors are currently marked verified for online consultations.</p>
+      <p>Unverified doctors are blocked from prescribing and real-time consultation workflows.</p>
+      <button class="btn btn-primary" (click)="openDoctorDirectory()">View Doctor Directory</button>
+    </div>
+
+    <div class="trust-modal-body" *ngIf="activePanel === 'disclaimer'">
+      <p>Ayustura guidance is supportive and educational. It does not replace professional diagnosis or emergency care.</p>
+      <p>For severe or worsening symptoms, seek immediate clinical evaluation and use emergency services when needed.</p>
+      <p>Always follow your treating doctor's prescription and follow-up plan.</p>
+    </div>
+  </article>
+</div>

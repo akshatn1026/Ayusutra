@@ -1,0 +1,132 @@
+<section class="consult-layout">
+  <div class="glass-card card loading-card" *ngIf="loading">Creating secure consultation session...</div>
+  <div class="glass-card card error-card" *ngIf="!loading && error">{{ error }}</div>
+
+  <!-- Incoming Call Overlay -->
+  <div class="incoming-call-overlay" *ngIf="incomingCall">
+    <div class="call-card glass-card blink-border">
+      <span class="material-symbols-outlined icon-huge">{{ incomingCall.type === 'video' ? 'videocam' : 'call' }}</span>
+      <h2>Incoming {{ incomingCall.type | titlecase }} Call</h2>
+      <p>from <strong>{{ incomingCall.from | titlecase }}</strong></p>
+      <div class="call-actions mt-3">
+        <button class="btn btn-primary" (click)="acceptCall()">Accept</button>
+        <button class="btn btn-danger" (click)="rejectCall()">Reject</button>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!loading && consultation && doctor">
+    
+    <!-- LEFT PANEL: Info & Controls -->
+    <aside class="panel info-panel glass-card">
+      <div class="panel-header">
+        <h2>{{ doctor.fullName }}</h2>
+        <p class="doctor-meta">
+          <span class="badge" *ngIf="doctor.verified">Verified</span>
+          {{ doctor.specialization.join(', ') }}
+        </p>
+      </div>
+
+      <div class="session-info">
+        <p><strong>Status:</strong> <span class="status-badge {{ consultation.status }}">{{ consultation.status }}</span></p>
+        <p><strong>Started:</strong> {{ consultation.startedAt | date: 'shortTime' }}</p>
+        <p><strong>Realtime:</strong> <span [class.text-green]="realtimeConnected" [class.text-red]="!realtimeConnected">{{ realtimeConnected ? 'Connected' : 'Disconnected' }}</span></p>
+        <p class="status-message" *ngIf="sessionStatus">{{ sessionStatus }}</p>
+        <p class="error-message" *ngIf="serverError">{{ serverError }}</p>
+        <p class="error-message" *ngIf="mediaError">{{ mediaError }}</p>
+        <p class="error-message" *ngIf="mediaUnavailableReason">{{ mediaUnavailableReason }}</p>
+      </div>
+
+      <div class="controls mt-auto">
+        <button class="btn btn-danger full-width mb-2" (click)="endConsultation()" [disabled]="consultation.status !== 'active'">
+          <span class="material-symbols-outlined icon-sm">logout</span> Leave Session
+        </button>
+        <button class="btn btn-primary full-width" *ngIf="isDoctorView" (click)="createPrescription()">
+          Build Prescription
+        </button>
+      </div>
+    </aside>
+
+    <!-- CENTER PANEL: Video Streams -->
+    <main class="panel video-panel glass-card">
+      <div class="panel-header d-flex justify-between">
+        <h3>Live Meeting</h3>
+        <div class="media-toggles" *ngIf="activeCall">
+          <button class="btn btn-pill btn-sm" (click)="toggleMute()">
+            <span class="material-symbols-outlined icon-sm">{{ isMuted ? 'mic_off' : 'mic' }}</span>
+          </button>
+          <button class="btn btn-pill btn-sm" (click)="toggleCamera()" *ngIf="activeCall === 'video'">
+            <span class="material-symbols-outlined icon-sm">{{ isCameraOn ? 'videocam' : 'videocam_off' }}</span>
+          </button>
+          <button class="btn btn-danger btn-sm" (click)="endActiveCall()">
+            <span class="material-symbols-outlined icon-sm">call_end</span> End
+          </button>
+        </div>
+      </div>
+
+      <div class="video-container" *ngIf="activeCall || outgoingCall">
+        <div class="remote-video-wrap">
+          <video #remoteVideo class="remote-video" autoplay playsinline></video>
+          <div class="video-overlay" *ngIf="activeCall === 'audio' || outgoingCall === 'audio'">
+            <span class="material-symbols-outlined icon-large pulse">person</span>
+            <p>{{ outgoingCall ? 'Ringing...' : 'Audio Call Active' }}</p>
+          </div>
+        </div>
+        <div class="local-video-wrap" [class.audio-only]="activeCall === 'audio' || outgoingCall === 'audio'">
+          <video #localVideo class="local-video" autoplay playsinline muted></video>
+        </div>
+      </div>
+
+      <div class="video-placeholder flex-center column" *ngIf="!activeCall && !outgoingCall">
+        <span class="material-symbols-outlined icon-huge">medical_services</span>
+        <h2>Consultation Room Ready</h2>
+        <p>Chat is always active. Start a call below when ready.</p>
+        <div class="call-buttons mt-3">
+          <button class="btn btn-primary mr-2" (click)="switchMode('audio')" [disabled]="!canStartAudio || consultation.status !== 'active'">
+            <span class="material-symbols-outlined icon-sm">call</span> Audio Call
+          </button>
+          <button class="btn btn-primary" (click)="switchMode('video')" [disabled]="!canStartVideo || consultation.status !== 'active'">
+            <span class="material-symbols-outlined icon-sm">videocam</span> Video Call
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT PANEL: Chat System -->
+    <aside class="panel chat-panel glass-card">
+      <div class="panel-header">
+        <h3>Chat History</h3>
+      </div>
+
+      <div class="chat-container">
+        <div class="chat-messages" #chatScroll>
+          <div class="message-wrapper" *ngFor="let m of consultation.messages" [class.self]="m.sender === (isDoctorView ? 'doctor' : 'patient')">
+            <div class="message-bubble" [class.system]="m.sender === 'system'">
+              <div class="message-meta">
+                <span class="sender">{{ m.sender }}</span>
+                <span class="time">{{ m.createdAt | date:'shortTime' }}</span>
+              </div>
+              <p class="text">{{ m.text }}</p>
+            </div>
+          </div>
+          <div class="empty-chat" *ngIf="consultation.messages.length === 0">
+            <p>No messages yet. Start the conversation!</p>
+          </div>
+        </div>
+
+        <div class="chat-input-area">
+          <div class="input-row">
+            <button class="btn btn-outline btn-icon attach-btn" (click)="addFileMock()" [disabled]="!canSend">
+               <span class="material-symbols-outlined">attach_file</span>
+            </button>
+            <input type="text" [(ngModel)]="message" (keyup.enter)="sendMessage()" placeholder="Type a message..." [disabled]="!canSend" />
+            <button class="btn btn-gold btn-icon send-btn" (click)="sendMessage()" [disabled]="!canSend || !message.trim()">
+              <span class="material-symbols-outlined">send</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </ng-container>
+</section>

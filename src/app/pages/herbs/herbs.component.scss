@@ -1,0 +1,318 @@
+.page-container {
+  padding: var(--space-lg) var(--page-inline) var(--space-xl);
+}
+
+.page-inner {
+  width: min(100%, 1000px);
+  margin: 0 auto;
+}
+
+.encyclopedia-header {
+  padding: 3rem 2rem;
+  text-align: center;
+  margin-bottom: 2.5rem;
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  border-top: 4px solid var(--ayurvedic-gold);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+  
+  h2 {
+    color: var(--text-primary);
+    font-size: 2.4rem;
+    margin-bottom: 0.8rem;
+    font-weight: 700;
+  }
+  
+  > p {
+    color: var(--text-secondary);
+    font-size: 1.15rem;
+    max-width: 600px;
+    margin: 0 auto 2.5rem;
+  }
+}
+
+.search-container {
+  position: relative;
+  max-width: 700px;
+  margin: 0 auto;
+  z-index: 100;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--bg-input);
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-glass);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+
+  &:focus-within {
+    box-shadow: var(--shadow-gold);
+    border-color: var(--ayurvedic-gold);
+  }
+
+  .search-icon {
+    color: var(--ayurvedic-gold);
+    font-size: 1.2rem;
+    margin: 0 0.5rem;
+  }
+
+  input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0.8rem;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    outline: none;
+    
+    &::placeholder {
+      color: var(--text-muted);
+    }
+  }
+}
+
+.voice-search-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+
+  &:hover {
+    background: var(--bg-glass-hover);
+    color: var(--ayurvedic-gold);
+  }
+
+  &.listening {
+    color: #ef4444;
+    animation: pulse 1.5s infinite;
+  }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.suggestions-dropdown {
+  position: absolute;
+  top: calc(100% + 15px);
+  left: 0;
+  width: 100%;
+  background: var(--bg-card);
+  backdrop-filter: blur(24px);
+  border: 1px solid var(--border-gold);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  gap: 1.2rem;
+
+  &:hover {
+    background: var(--bg-glass-hover);
+  }
+
+  .suggestion-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: var(--dark-herbal);
+    border: 1px solid var(--border-glass);
+  }
+  
+  .suggestion-text {
+    display: flex;
+    flex-direction: column;
+    
+    .s-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 1.05rem;
+    }
+    
+    .s-sci {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+  }
+}
+
+.spell-check {
+  margin-top: 1.5rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  
+  a {
+    color: var(--ayurvedic-gold);
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--ayurvedic-gold);
+    padding-bottom: 2px;
+    transition: all 0.2s;
+    
+    &:hover {
+      color: var(--text-primary);
+      border-bottom-style: solid;
+    }
+  }
+}
+
+.status-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 3rem;
+  padding: 2rem;
+  color: var(--ayurvedic-gold);
+  font-weight: 500;
+  font-size: 1.1rem;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-glass);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(200, 169, 81, 0.2);
+  border-top-color: var(--ayurvedic-gold);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-msg {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  font-weight: 500;
+  text-align: center;
+}
+
+/* Grid Styles */
+.encyclopedia-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 3rem;
+  text-align: left;
+}
+
+.herb-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-glass);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-gold);
+    border-color: var(--border-gold);
+  }
+}
+
+.herb-image {
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--dark-herbal);
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.herb-info {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  
+  h3 {
+    margin: 0 0 0.4rem 0;
+    color: var(--text-primary);
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+  
+  .scientific {
+    font-style: italic;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+  
+  .uses-teaser {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    flex: 1;
+    margin-bottom: 1.5rem;
+  }
+  
+  .badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: auto;
+    
+    .badge {
+      font-size: 0.7rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      color: var(--text-primary);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      
+      &.ai-badge {
+        background: rgba(200, 169, 81, 0.1);
+        border-color: rgba(200, 169, 81, 0.3);
+        color: var(--ayurvedic-gold);
+      }
+    }
+  }
+}

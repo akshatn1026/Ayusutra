@@ -1,0 +1,63 @@
+.page-container {
+  padding: var(--space-lg) var(--page-inline) var(--space-xl);
+}
+
+.page-inner {
+  width: min(100%, var(--content-max-narrow));
+  margin: 0 auto;
+}
+
+.card {
+  padding: 1.2rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.page-header h1 {
+  margin: 0 0 0.3rem;
+}
+
+.summary-card ul,
+.support-card ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.meals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.8rem;
+}
+
+.meal-card,
+.avoid-card {
+  border: 1px solid rgba(20, 74, 57, 0.15);
+  border-radius: var(--radius-md);
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.meal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.btn-sm {
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+
+.empty-state {
+  color: var(--text-500);
+  font-size: 0.88rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}

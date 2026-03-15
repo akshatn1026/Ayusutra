@@ -1,0 +1,1183 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   AYUSUTRA — Global Design System
+   Dark Herbal + Gold Glassmorphism Theme
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ─── CSS Custom Properties ───────────────────────────────────────── */
+:root {
+  /* Primary palette */
+  --primary-herbal: #2E7D32;
+  --leaf-green: #4CAF50;
+  --light-herbal: #A5D6A7;
+  --warm-sand: #F5F5DC;
+  --dark-herbal: #0F2E1D;
+  --ayurvedic-gold: #C8A951;
+  --deep-forest: #0a1f14;
+  --emerald-glow: #10B981;
+
+  /* Surfaces */
+  --bg-body: #0F2E1D;
+  --bg-card: rgba(15, 46, 29, 0.7);
+  --bg-glass: rgba(255, 255, 255, 0.05);
+  --bg-glass-hover: rgba(255, 255, 255, 0.1);
+  --bg-input: rgba(255, 255, 255, 0.05);
+
+  /* Borders */
+  --border-glass: rgba(255, 255, 255, 0.1);
+  --border-gold: rgba(200, 169, 81, 0.2);
+  --border-green: rgba(46, 125, 50, 0.3);
+
+  /* Text */
+  --text-primary: #F5F5DC;
+  --text-secondary: rgba(245, 245, 220, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.4);
+  --text-gold: #C8A951;
+
+  /* Shadows */
+  --shadow-gold: 0 0 30px rgba(200, 169, 81, 0.15);
+  --shadow-lg: 0 25px 50px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  /* Radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-3xl: 3rem;
+  --radius-full: 999px;
+
+  /* Typography */
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+
+  /* Layout */
+  --max-width: 80rem;
+  --page-padding: 1.5rem;
+}
+
+/* ─── Base Reset & Defaults ───────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-body);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+::selection {
+  background: rgba(200, 169, 81, 0.3);
+  color: var(--warm-sand);
+}
+
+h1, h2, h3,
+.display-font {
+  font-family: var(--font-display);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--ayurvedic-gold);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-body);
+  border: none;
+  outline: none;
+  background: none;
+  color: inherit;
+}
+
+input, textarea, select {
+  font-family: var(--font-body);
+  font-size: 1rem;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+/* ─── Utility Classes ─────────────────────────────────────────────── */
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--page-padding);
+}
+
+/* Glassmorphism */
+.glass {
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+}
+
+.glass-dark {
+  background: var(--bg-card);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-gold);
+}
+
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card);
+  border-color: var(--border-gold);
+}
+
+/* Gold glow */
+.gold-glow {
+  box-shadow: var(--shadow-gold);
+}
+
+/* Gradient text */
+.text-gradient-gold {
+  background: linear-gradient(135deg, #F5F5DC 0%, #C8A951 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-green {
+  background: linear-gradient(135deg, #A5D6A7 0%, #4CAF50 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Buttons ──────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-lg);
+  font-weight: 700;
+  font-size: 0.875rem;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.btn-gold {
+  background: var(--ayurvedic-gold);
+  color: var(--dark-herbal);
+  box-shadow: var(--shadow-gold);
+}
+
+.btn-gold:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 40px rgba(200, 169, 81, 0.3);
+}
+
+.btn-glass {
+  background: var(--bg-glass);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+  backdrop-filter: blur(12px);
+}
+
+.btn-glass:hover {
+  background: var(--bg-glass-hover);
+}
+
+.btn-outline-gold {
+  background: transparent;
+  border: 1px solid rgba(200, 169, 81, 0.3);
+  color: var(--ayurvedic-gold);
+  backdrop-filter: blur(12px);
+}
+
+.btn-outline-gold:hover {
+  background: rgba(200, 169, 81, 0.1);
+  transform: scale(1.05);
+}
+
+.btn-pill {
+  border-radius: var(--radius-full);
+}
+
+.btn-lg {
+  padding: 1rem 2rem;
+  font-size: 1rem;
+}
+
+/* ─── Form Inputs ──────────────────────────────────────────────────── */
+.input-glass {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  padding: 1rem 1.5rem;
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.input-glass::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.input-glass:focus {
+  outline: none;
+  border-color: transparent;
+  box-shadow: 0 0 0 2px rgba(200, 169, 81, 0.5);
+}
+
+.floating-label {
+  position: relative;
+}
+
+.floating-label label {
+  position: absolute;
+  left: 1.5rem;
+  top: 1rem;
+  color: var(--text-muted);
+  font-size: 1rem;
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.floating-label input:focus + label,
+.floating-label input:not(:placeholder-shown) + label {
+  top: 0.35rem;
+  font-size: 0.7rem;
+  color: var(--ayurvedic-gold);
+}
+
+/* ─── Cards ────────────────────────────────────────────────────────── */
+.feature-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-2xl);
+  padding: 2rem;
+  transition: all 0.35s ease;
+}
+
+.feature-card:hover {
+  border-color: var(--border-gold);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-card);
+}
+
+.feature-card-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(46, 125, 50, 0.2);
+  color: var(--light-herbal);
+  margin-bottom: 1rem;
+}
+
+/* ─── Badges ───────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.badge-gold {
+  background: rgba(200, 169, 81, 0.1);
+  border: 1px solid rgba(200, 169, 81, 0.2);
+  color: var(--ayurvedic-gold);
+}
+
+.badge-green {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  color: var(--leaf-green);
+}
+
+.badge-live {
+  position: relative;
+}
+
+.badge-live::before {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--ayurvedic-gold);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* ─── Dosha Badges ─────────────────────────────────────────────────── */
+.badge-vata {
+  background: rgba(59, 130, 246, 0.1);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.badge-pitta {
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.badge-kapha {
+  background: rgba(16, 185, 129, 0.1);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* ─── Custom Scrollbar ─────────────────────────────────────────────── */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--ayurvedic-gold);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 46, 29, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(200, 169, 81, 0.3);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(200, 169, 81, 0.5);
+}
+
+/* ─── Background Ambient Elements ──────────────────────────────────── */
+.bg-ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.bg-ambient::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: -10%;
+  width: 70%;
+  height: 70%;
+  background: rgba(46, 125, 50, 0.12);
+  border-radius: 50%;
+  filter: blur(120px);
+}
+
+.bg-ambient::after {
+  content: '';
+  position: absolute;
+  bottom: -10%;
+  right: -10%;
+  width: 60%;
+  height: 60%;
+  background: rgba(200, 169, 81, 0.08);
+  border-radius: 50%;
+  filter: blur(100px);
+}
+
+/* ─── Material Symbols Sizing ──────────────────────────────────────── */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+.icon-sm {
+  font-size: 1rem;
+}
+
+.icon-md {
+  font-size: 1.5rem;
+}
+
+.icon-lg {
+  font-size: 2rem;
+}
+
+.icon-xl {
+  font-size: 3rem;
+}
+
+/* ─── Section Layout ───────────────────────────────────────────────── */
+.section {
+  padding: 5rem 0;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.section-header h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.section-header p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  max-width: 36rem;
+  margin: 0 auto;
+}
+
+/* ─── Grid Utilities ───────────────────────────────────────────────── */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ─── Flex Utilities ───────────────────────────────────────────────── */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-col-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ─── Text Utilities ───────────────────────────────────────────────── */
+.text-xs { font-size: 0.625rem; }
+.text-sm { font-size: 0.875rem; }
+.text-base { font-size: 1rem; }
+.text-lg { font-size: 1.125rem; }
+.text-xl { font-size: 1.25rem; }
+.text-2xl { font-size: 1.5rem; }
+.text-3xl { font-size: 2rem; }
+.text-4xl { font-size: 2.5rem; }
+.text-5xl { font-size: 3.5rem; }
+.text-6xl { font-size: 4rem; }
+
+.text-gold { color: var(--ayurvedic-gold); }
+.text-green { color: var(--leaf-green); }
+.text-sand { color: var(--warm-sand); }
+.text-muted { color: var(--text-muted); }
+.text-herbal { color: var(--light-herbal); }
+
+.font-bold { font-weight: 700; }
+.font-extrabold { font-weight: 800; }
+.font-black { font-weight: 900; }
+.tracking-wide { letter-spacing: 0.05em; }
+.tracking-widest { letter-spacing: 0.15em; }
+.uppercase { text-transform: uppercase; }
+
+/* ─── Spacing Utilities ────────────────────────────────────────────── */
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+.gap-8 { gap: 2rem; }
+
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mb-8 { margin-bottom: 2rem; }
+
+/* ─── Responsive ───────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  :root {
+    --page-padding: 1rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.75rem;
+  }
+
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+/* ─── Reduced Motion ───────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Legacy Variable Mapping — Maps old light-theme vars to dark herbal
+   ═══════════════════════════════════════════════════════════════════════ */
+:root {
+  /* Legacy text vars → dark theme */
+  --text-900: var(--warm-sand);
+  --text-800: rgba(245, 245, 220, 0.9);
+  --text-700: rgba(245, 245, 220, 0.7);
+  --text-600: rgba(245, 245, 220, 0.6);
+  --text-500: rgba(255, 255, 255, 0.5);
+
+  /* Legacy green vars → gold / herbal */
+  --green-900: var(--ayurvedic-gold);
+  --green-800: #C8A951;
+  --green-700: var(--ayurvedic-gold);
+  --green-600: #B89A42;
+  --accent-500: var(--ayurvedic-gold);
+  --accent-400: rgba(200, 169, 81, 0.7);
+
+  /* Legacy border vars → dark borders */
+  --border-900: rgba(200, 169, 81, 0.3);
+  --border-800: rgba(200, 169, 81, 0.2);
+  --border-700: rgba(255, 255, 255, 0.1);
+  --border-600: rgba(255, 255, 255, 0.08);
+
+  /* Legacy surface vars → dark surfaces */
+  --surface-100: var(--bg-card);
+  --surface-50: rgba(15, 46, 29, 0.5);
+
+  /* Legacy gradients */
+  --emerald-gradient: linear-gradient(135deg, var(--ayurvedic-gold), #B89A42);
+
+  /* Legacy spacing (reuse or set defaults) */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+
+  /* Legacy radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+
+  /* Legacy shadows → dark shadows */
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+  /* Layout */
+  --page-inline: 1.5rem;
+  --content-max: 75rem;
+  --navbar-offset: 80px;
+
+  /* Danger color */
+  --danger: #f87171;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Universal Dark Theme Override — Converts all legacy page components
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ─── All Page Backgrounds ─────────────────────────────────────────── */
+.about-page,
+.contact-page,
+.services-page,
+.features-page,
+.blog-page,
+.blog-detail-page,
+.pharmacy-page,
+.herbs-page,
+.dosha-page,
+.diet-page,
+.panchakarma-page,
+.daily-routine-page,
+.doctor-directory-page,
+.orders-page,
+.notifications-page,
+.prescription-page {
+  background: var(--bg-body) !important;
+  color: var(--text-primary);
+}
+
+/* ─── Hero / Banner Sections ───────────────────────────────────────── */
+.about-hero,
+.contact-hero,
+.services-hero,
+.features-hero,
+.herbs-hero,
+.pharmacy-hero,
+.blog-hero {
+  background:
+    linear-gradient(130deg, rgba(15, 46, 29, 0.95), rgba(20, 60, 38, 0.9)),
+    radial-gradient(circle at 75% 25%, rgba(200, 169, 81, 0.2), transparent 52%) !important;
+  box-shadow: var(--shadow-lg) !important;
+  border: 1px solid var(--border-glass) !important;
+}
+
+.about-hero h1,
+.contact-hero h1,
+.services-hero h1,
+.features-hero h1,
+.herbs-hero h1,
+.pharmacy-hero h1,
+.blog-hero h1 {
+  color: var(--warm-sand) !important;
+}
+
+.about-hero p,
+.contact-hero p,
+.services-hero p,
+.features-hero p,
+.herbs-hero p,
+.pharmacy-hero p,
+.blog-hero p {
+  color: var(--text-secondary) !important;
+}
+
+.kicker {
+  background: rgba(200, 169, 81, 0.15) !important;
+  border: 1px solid rgba(200, 169, 81, 0.3) !important;
+  color: var(--ayurvedic-gold) !important;
+}
+
+/* ─── Cards & Panels ───────────────────────────────────────────────── */
+.card,
+.panel,
+.about-panel,
+.principle-card,
+.timeline-item,
+.contact-form-card,
+.contact-info-card,
+.method,
+.signup-card,
+.blog-card,
+.herb-card,
+.pharmacy-card,
+.product-card-legacy,
+.service-card,
+.feature-item,
+.metric-card,
+.welcome-panel,
+.completion-box,
+.activity-item,
+.guidance-item,
+.symptom-quick,
+.symptom-log-item,
+.booking-form,
+.error-card,
+.dosha-card,
+.diet-card,
+.routine-card,
+.prescription-card,
+.notification-item,
+.order-card,
+.doctor-card,
+.profile-card,
+.consult-card,
+.ai-chat-card,
+.glass-card-legacy {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-glass) !important;
+  border-radius: var(--radius-xl);
+  color: var(--text-primary);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-card);
+}
+
+.card:hover,
+.panel:hover,
+.principle-card:hover,
+.herb-card:hover,
+.service-card:hover,
+.feature-item:hover,
+.doctor-card:hover {
+  border-color: var(--border-gold) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+/* ─── Text Colors ──────────────────────────────────────────────────── */
+.about-panel h2,
+.contact-form-card h2,
+.contact-info-card h2,
+.principle-card h3,
+.timeline-item h3,
+.method h3,
+.panel-head h3,
+.activity-item h4,
+.guidance-item h4,
+.symptom-head strong {
+  color: var(--warm-sand) !important;
+}
+
+.about-panel p,
+.principle-card p,
+.timeline-item p,
+.method p,
+.activity-item p,
+.guidance-item p,
+.guidance-advisory,
+.intro,
+.section-sub,
+.subtitle,
+.meter-label {
+  color: var(--text-secondary) !important;
+}
+
+.mission-list li,
+.method a {
+  color: var(--text-secondary) !important;
+}
+
+.mission-list li::before {
+  background: linear-gradient(135deg, var(--ayurvedic-gold), #B89A42) !important;
+}
+
+.method a:hover {
+  color: var(--ayurvedic-gold) !important;
+}
+
+/* ─── All Inputs, Selects, Textareas ───────────────────────────────── */
+input:not([type='checkbox']):not([type='radio']):not(.chat-input),
+select,
+textarea {
+  background: var(--bg-input) !important;
+  border: 1px solid var(--border-glass) !important;
+  border-radius: var(--radius-lg) !important;
+  color: var(--text-primary) !important;
+  padding: 0.85rem 1rem;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(255, 255, 255, 0.25) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: transparent !important;
+  box-shadow: 0 0 0 2px rgba(200, 169, 81, 0.5) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+input.error,
+select.error,
+textarea.error,
+input.input-error {
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+}
+
+/* Floating labels in dark mode */
+.field-group label,
+.contact-page .field-group label {
+  color: var(--text-muted) !important;
+}
+
+input:focus + label,
+input:not(:placeholder-shown) + label,
+textarea:focus + label,
+textarea:not(:placeholder-shown) + label,
+select:focus + label,
+select:valid + label {
+  color: var(--ayurvedic-gold) !important;
+}
+
+/* Field icon color */
+.field-icon {
+  color: rgba(200, 169, 81, 0.5) !important;
+}
+
+/* ─── All Buttons ──────────────────────────────────────────────────── */
+.btn-primary,
+.create-btn,
+.submit-btn,
+button.btn-primary,
+.role-pill.active {
+  background: var(--ayurvedic-gold) !important;
+  color: var(--dark-herbal) !important;
+  border: none !important;
+  border-radius: var(--radius-full) !important;
+  box-shadow: var(--shadow-gold) !important;
+  font-weight: 700;
+}
+
+.btn-primary:hover,
+.create-btn:hover:not(:disabled),
+.submit-btn:hover,
+.role-pill.active:hover {
+  box-shadow: 0 0 40px rgba(200, 169, 81, 0.3) !important;
+  transform: translateY(-2px);
+}
+
+.btn-primary:disabled,
+.create-btn:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed;
+}
+
+.role-pill {
+  background: var(--bg-glass) !important;
+  border: 1px solid var(--border-glass) !important;
+  color: var(--text-secondary) !important;
+  border-radius: var(--radius-full) !important;
+}
+
+.role-pill:hover:not(.active) {
+  border-color: var(--border-gold) !important;
+  color: var(--ayurvedic-gold) !important;
+}
+
+.btn-outline,
+.btn-ghost,
+.btn-sm,
+.btn-link {
+  color: var(--ayurvedic-gold) !important;
+}
+
+.btn-link:hover {
+  color: rgba(200, 169, 81, 0.8) !important;
+}
+
+/* ─── Badges ───────────────────────────────────────────────────────── */
+.badge,
+.tag,
+.chip {
+  background: rgba(200, 169, 81, 0.1) !important;
+  border: 1px solid rgba(200, 169, 81, 0.2) !important;
+  color: var(--ayurvedic-gold) !important;
+}
+
+/* ─── Trust Strip ──────────────────────────────────────────────────── */
+.trust-strip span {
+  background: var(--bg-glass) !important;
+  border: 1px solid var(--border-glass) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* ─── Message Banners ──────────────────────────────────────────────── */
+.message-banner {
+  background: rgba(200, 169, 81, 0.1) !important;
+  border: 1px solid rgba(200, 169, 81, 0.2) !important;
+  color: var(--text-secondary) !important;
+}
+
+.global-error {
+  background: rgba(239, 68, 68, 0.08) !important;
+  border: 1px solid rgba(239, 68, 68, 0.2) !important;
+  color: #f87171 !important;
+}
+
+.error-message {
+  color: #f87171 !important;
+}
+
+/* ─── Auth Pages (Register, Forgot Password, Reset) ────────────────── */
+.signup-shell,
+.forgot-shell,
+.reset-shell {
+  min-height: calc(100vh - 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signup-card,
+.forgot-card,
+.reset-card {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-gold) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.signup-header h1,
+.forgot-header h1,
+.reset-header h1 {
+  color: var(--warm-sand) !important;
+  background: linear-gradient(135deg, #F5F5DC, #C8A951);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.signup-header p,
+.forgot-header p,
+.reset-header p {
+  color: var(--text-secondary) !important;
+}
+
+.signup-form .form-group label {
+  color: var(--text-secondary) !important;
+}
+
+.auth-switch {
+  color: var(--text-muted) !important;
+}
+
+.auth-switch a {
+  color: var(--ayurvedic-gold) !important;
+}
+
+.auth-switch a:hover {
+  color: rgba(200, 169, 81, 0.8) !important;
+}
+
+/* Password toggle */
+.toggle-password {
+  color: var(--ayurvedic-gold) !important;
+}
+
+/* Progress track */
+.progress-track {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.progress-fill {
+  background: var(--ayurvedic-gold) !important;
+}
+
+/* ─── Dashboard Shells ─────────────────────────────────────────────── */
+.dashboard-shell,
+.dashboard-container,
+.state-shell {
+  color: var(--text-primary);
+}
+
+.eyebrow {
+  color: var(--ayurvedic-gold) !important;
+}
+
+/* ─── Tables ───────────────────────────────────────────────────────── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background: rgba(200, 169, 81, 0.1);
+  color: var(--ayurvedic-gold);
+  font-weight: 700;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+}
+
+tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* ─── Actions Grid Buttons (Dashboard) ─────────────────────────────── */
+.actions-grid button {
+  background: var(--bg-glass) !important;
+  border: 1px solid var(--border-glass) !important;
+  color: var(--text-primary) !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+.actions-grid button:hover:not(:disabled) {
+  border-color: var(--border-gold) !important;
+  background: rgba(200, 169, 81, 0.1) !important;
+}
+
+.actions-grid span {
+  color: var(--text-secondary) !important;
+}
+
+/* ─── Symptom Form (Dashboard) ─────────────────────────────────────── */
+.symptom-presets button {
+  background: var(--bg-glass) !important;
+  border: 1px solid var(--border-glass) !important;
+  color: var(--text-secondary) !important;
+  border-radius: var(--radius-full) !important;
+}
+
+.symptom-presets button:hover,
+.symptom-presets button.active {
+  border-color: var(--ayurvedic-gold) !important;
+  background: rgba(200, 169, 81, 0.15) !important;
+  color: var(--ayurvedic-gold) !important;
+}
+
+/* ─── Skeleton Loading ─────────────────────────────────────────────── */
+.skeleton-head,
+.skeleton-row {
+  background: linear-gradient(90deg, var(--bg-glass) 25%, rgba(255, 255, 255, 0.08) 50%, var(--bg-glass) 75%) !important;
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-lg);
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ─── Spinner ──────────────────────────────────────────────────────── */
+.spinner {
+  border-color: rgba(200, 169, 81, 0.3) !important;
+  border-top-color: var(--ayurvedic-gold) !important;
+}
+
+/* ─── Timeline Items ───────────────────────────────────────────────── */
+.timeline-item span {
+  background: linear-gradient(135deg, var(--ayurvedic-gold), #B89A42) !important;
+  color: var(--dark-herbal) !important;
+}
+
+/* ─── Dosha Assessment Colors ──────────────────────────────────────── */
+.dosha-vata { color: #60a5fa !important; }
+.dosha-pitta { color: #f87171 !important; }
+.dosha-kapha { color: #34d399 !important; }
+
+/* ─── Stay Button (legacy) ─────────────────────────────────────────── */
+.stay-btn {
+  background: var(--ayurvedic-gold) !important;
+  color: var(--dark-herbal) !important;
+  border: none !important;
+  border-radius: var(--radius-full) !important;
+}
+
+/* ─── Checkbox/Radio ───────────────────────────────────────────────── */
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: var(--ayurvedic-gold) !important;
+}
+
+.terms-row label {
+  color: var(--text-secondary) !important;
+}
+
+/* ─── Consult Room fixes ───────────────────────────────────────────── */
+.consult-shell,
+.ai-assistant-page,
+.medical-analyzer-page {
+  background: var(--bg-body) !important;
+  color: var(--text-primary);
+}
+
+/* ─── Herb Detail ──────────────────────────────────────────────────── */
+.herb-detail-page {
+  background: var(--bg-body) !important;
+  color: var(--text-primary);
+}
+
+/* ─── Cart Page ────────────────────────────────────────────────────── */
+.cart-page {
+  background: var(--bg-body) !important;
+  color: var(--text-primary);
+}
+
+/* ─── Profile ──────────────────────────────────────────────────────── */
+.profile-card {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-glass) !important;
+}
+
+/* ─── Auth Container (fallback) ────────────────────────────────────── */
+.auth-container {
+  color: var(--text-primary);
+}
+
+/* ─── All Page Containers & Wrappers ───────────────────────────────── */
+.page-container {
+  color: var(--text-primary);
+}
+
+/* ─── Section headings in all pages ────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--warm-sand);
+}
+
+/* ─── Paragraph text in all pages ──────────────────────────────────── */
+p {
+  color: var(--text-secondary);
+}
+
+/* ─── Anchor links ─────────────────────────────────────────────────── */
+a {
+  color: var(--text-secondary);
+}
+
+a:hover {
+  color: var(--ayurvedic-gold);
+}
+
+/* ─── Labels ───────────────────────────────────────────────────────── */
+label {
+  color: var(--text-secondary);
+}

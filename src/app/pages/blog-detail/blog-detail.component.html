@@ -1,0 +1,14 @@
+<section class="page-container">
+  <div class="page-inner blog-detail" *ngIf="post; else missing">
+    <h1>{{ post.title }}</h1>
+    <p>{{ post.createdAt | date: 'medium' }} · {{ post.author }}</p>
+    <p>{{ post.content }}</p>
+  </div>
+
+  <ng-template #missing>
+    <div class="page-inner blog-detail">
+      <h1>Article not found</h1>
+      <a routerLink="/blog">Back to blog</a>
+    </div>
+  </ng-template>
+</section>

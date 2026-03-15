@@ -1,0 +1,29 @@
+Node.js version v25.6.0 detected.
+Odd numbered Node.js versions will not enter LTS status and should not be used for production. For more information, please see https://nodejs.org/en/about/previous-releases/.
+- Generating browser application bundles (phase: setup)...
+✔ Browser application bundle generation complete.
+✔ Browser application bundle generation complete.
+- Copying assets...
+✔ Copying assets complete.
+- Generating index html...
+✔ Index html generation complete.
+
+Initial chunk files           | Names                                     |  Raw size | Estimated transfer size
+main.c5efe3963cef42a4.js      | main                                      | 550.76 kB |               142.37 kB
+polyfills.539fa00083e35bd2.js | polyfills                                 |  34.02 kB |                11.08 kB
+styles.78151f817ff2d970.css   | styles                                    |  20.19 kB |                 4.36 kB
+runtime.53175010c15c2718.js   | runtime                                   |   2.88 kB |                 1.40 kB
+
+                              | Initial total                             | 607.84 kB |               159.21 kB
+
+Lazy chunk files              | Names                                     |  Raw size | Estimated transfer size
+928.c677f68f9195b51c.js       | features-health-health-module             | 113.40 kB |                23.05 kB
+68.d0acb5e090be923b.js        | features-consultation-consultation-module |  93.97 kB |                18.61 kB
+129.fee0971adee0ac48.js       | features-content-content-module           |  73.82 kB |                15.54 kB
+883.8bab1206f729c76c.js       | features-dashboard-dashboard-module       |  69.23 kB |                14.58 kB
+77.9603713e3a040385.js        | features-auth-auth-module                 |  41.87 kB |                 7.44 kB
+860.1c042bf40015fc53.js       | features-pharmacy-pharmacy-module         |  11.35 kB |                 3.03 kB
+256.ad878d825e1c9fc8.js       | features-herbs-herbs-module               |   8.65 kB |                 2.47 kB
+common.fe8b2f8fe0d440d8.js    | common                                    |   2.18 kB |                 1.03 kB
+
+Build at: 2026-03-08T06:58:17.741Z - Hash: fb45943a64eb0adc - Time: 26757ms

@@ -1,0 +1,174 @@
+<div class="prescription-container fade-in">
+  <div class="glass-card">
+    <div class="form-header">
+      <h2>Ayurvedic Prescription Generator</h2>
+      <p>Fill out the details below to generate a professional PDF prescription.</p>
+    </div>
+
+    <!-- Error/Status Box -->
+    <div class="alert error" *ngIf="errorMsg">{{ errorMsg }}</div>
+    <div class="alert success" *ngIf="successMsg">{{ successMsg }}</div>
+
+    <form [formGroup]="prescriptionForm" (ngSubmit)="generatePrescription()">
+      
+      <!-- Patient Information -->
+      <section class="form-section">
+        <h3>1. Patient Information</h3>
+        <div class="grid-2-col">
+          <div class="input-group">
+            <label>Patient Name *</label>
+            <input type="text" formControlName="patientName" placeholder="Full Name" />
+            <small class="error-text" *ngIf="isControlInvalid('patientName')">Name is required.</small>
+          </div>
+          
+          <div class="input-group">
+            <label>Contact Number</label>
+            <input type="text" formControlName="contactNumber" placeholder="+91 XXXXX XXXXX" />
+          </div>
+
+          <div class="input-group">
+            <label>Age *</label>
+            <input type="number" formControlName="age" placeholder="e.g., 35" min="1" max="120" />
+            <small class="error-text" *ngIf="isControlInvalid('age')">Valid age required.</small>
+          </div>
+
+          <div class="input-group">
+            <label>Gender *</label>
+            <select formControlName="gender">
+              <option value="" disabled selected>Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+            <small class="error-text" *ngIf="isControlInvalid('gender')">Gender is required.</small>
+          </div>
+        </div>
+      </section>
+
+      <!-- Consultation Details -->
+      <section class="form-section">
+        <h3>2. Consultation Details</h3>
+        <div class="grid-1-col">
+          <div class="input-group">
+            <label>Consultation Date *</label>
+            <input type="date" formControlName="date" />
+            <small class="error-text" *ngIf="isControlInvalid('date')">Date is required.</small>
+          </div>
+
+          <div class="input-group">
+            <label>Observed Symptoms *</label>
+            <textarea formControlName="symptoms" placeholder="Describe patient symptoms..." rows="2"></textarea>
+            <small class="error-text" *ngIf="isControlInvalid('symptoms')">Symptoms are required.</small>
+          </div>
+
+          <div class="input-group">
+            <label>Primary Diagnosis *</label>
+            <textarea formControlName="diagnosis" placeholder="Diagnostic conclusions..." rows="2"></textarea>
+            <small class="error-text" *ngIf="isControlInvalid('diagnosis')">Diagnosis is required.</small>
+          </div>
+        </div>
+      </section>
+
+      <!-- Medicines Section (Dynamic Array) -->
+      <section class="form-section">
+        <div class="section-header-flex">
+          <h3>3. Medicines</h3>
+          <button type="button" class="btn btn-outline-sm" (click)="addMedicine()">
+            <span class="icon">➕</span> Add Medicine
+          </button>
+        </div>
+
+        <div formArrayName="medicines" class="medicines-container">
+          <div 
+            class="medicine-card" 
+            *ngFor="let m of medicines.controls; let i=index" 
+            [formGroupName]="i"
+          >
+            <div class="card-header">
+              <h4>Medicine #{{i + 1}}</h4>
+              <button type="button" class="btn-icon danger" (click)="removeMedicine(i)" *ngIf="medicines.length > 1" title="Remove Medicine">
+                ✕
+              </button>
+            </div>
+            
+            <div class="grid-2-col align-start">
+              <div class="input-group">
+                <label>Medicine Name *</label>
+                <input type="text" formControlName="name" placeholder="e.g., Ashwagandha Churna" />
+              </div>
+              
+              <div class="input-group">
+                <label>Dosage *</label>
+                <input type="text" formControlName="dosage" placeholder="e.g., 1 tablet twice daily" />
+              </div>
+
+              <div class="input-group">
+                <label>Duration *</label>
+                <input type="text" formControlName="duration" placeholder="e.g., 7 days" />
+              </div>
+
+              <div class="input-group">
+                <label>Instructions *</label>
+                <select formControlName="instructions">
+                  <option value="" disabled selected>Select Time</option>
+                  <option value="Before Food">Before Food</option>
+                  <option value="After Food">After Food</option>
+                  <option value="With Warm Water">With Warm Water</option>
+                  <option value="With Milk">With Milk</option>
+                  <option value="Empty Stomach (Morning)">Empty Stomach (Morning)</option>
+                  <option value="Bedtime">At Bedtime</option>
+                  <option value="Other">Other (Specify in Notes)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="empty-state-text" *ngIf="medicines.length === 0">
+            No medicines added. Click "Add Medicine" to prescribe.
+          </div>
+        </div>
+      </section>
+
+      <!-- Ayurvedic Recommendations -->
+      <section class="form-section">
+        <h3>4. Ayurvedic Lifestyle & Diet Recommendations</h3>
+        <div class="grid-2-col">
+          <div class="input-group">
+            <label>Herbal Supplements</label>
+            <input type="text" formControlName="herbalMedicines" placeholder="General herbal supplements..." />
+          </div>
+          
+          <div class="input-group">
+            <label>Diet Recommendations</label>
+            <input type="text" formControlName="dietRecommendations" placeholder="Foods to eat or avoid..." />
+          </div>
+
+          <div class="input-group">
+            <label>Lifestyle Advice</label>
+            <input type="text" formControlName="lifestyleAdvice" placeholder="Daily routine changes..." />
+          </div>
+
+          <div class="input-group">
+            <label>Yoga/Meditation</label>
+            <input type="text" formControlName="yogaMeditation" placeholder="Specific asanas or pranayama..." />
+          </div>
+        </div>
+      </section>
+
+      <!-- Additional Notes -->
+      <section class="form-section last-section">
+        <h3>5. Doctor's Notes (Optional)</h3>
+        <div class="input-group">
+          <textarea formControlName="doctorNotes" placeholder="Additional instructions for the patient..." rows="3"></textarea>
+        </div>
+      </section>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary generate-btn" [disabled]="prescriptionForm.invalid || isGenerating">
+          <span class="icon">{{ isGenerating ? '⏳' : '📄' }}</span>
+          {{ isGenerating ? 'Generating PDF...' : 'Generate Prescription PDF' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

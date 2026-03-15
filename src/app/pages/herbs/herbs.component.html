@@ -1,0 +1,63 @@
+<section class="page-container">
+  <div class="page-inner">
+    <div class="glass-card card encyclopedia-header">
+      <h2>Digital Ayurvedic Herbal Encyclopedia</h2>
+      <p>Search over thousands of herbs from validated databases, modern research, and ancient texts.</p>
+      
+      <div class="search-container">
+        <div class="search-input-wrapper">
+          <i class="fas fa-search search-icon"></i>
+          <input 
+            [(ngModel)]="query" 
+            (input)="onSearchInput()" 
+            (keyup.enter)="executeSearch()"
+            placeholder="Search for herbs like Ashwagandha, Brahmi..." 
+            autocomplete="off"
+            id="herb-search"
+          />
+          <button class="voice-search-btn" (click)="toggleVoiceSearch()" [class.listening]="isListening" title="Search by Voice">
+            <i class="fas fa-microphone"></i>
+          </button>
+        </div>
+
+        <!-- Autocomplete Suggestions -->
+        <div class="suggestions-dropdown glass-card" *ngIf="suggestions.length > 0 && showSuggestions">
+          <div class="suggestion-item" *ngFor="let s of suggestions" (click)="selectSuggestion(s.herb_name)">
+            <img [src]="s.image_url || 'assets/images/leaf-placeholder.png'" class="suggestion-thumb" alt="Herb" />
+            <div class="suggestion-text">
+              <span class="s-name">{{ s.herb_name }}</span>
+              <span class="s-sci">{{ s.scientific_name }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="spell-check" *ngIf="didYouMean">
+        Did you mean: <a (click)="selectSuggestion(didYouMean)">{{ didYouMean }}</a>?
+      </p>
+
+      <div class="status-message" *ngIf="loading">
+        <div class="spinner"></div>
+        <span>Consulting encyclopedias & AI synthesizing knowledge...</span>
+      </div>
+      <p class="error-msg" *ngIf="error">{{ error }}</p>
+
+      <!-- Advanced Grid -->
+      <div class="encyclopedia-grid" *ngIf="!loading && herbs.length > 0">
+        <div class="herb-card" *ngFor="let herb of herbs" (click)="openHerb(herb)">
+          <div class="herb-image" [style.background-image]="'url(' + (herb.image_url || 'assets/images/leaf-placeholder.png') + ')'"></div>
+          <div class="herb-info">
+            <h3>{{ herb.herb_name }}</h3>
+            <span class="scientific">{{ herb.scientific_name }}</span>
+            <p class="uses-teaser">{{ truncate(herb.ayurvedic_uses || herb.benefits, 60) }}</p>
+            <div class="badges">
+              <span class="badge" *ngIf="herb.source_info === 'cache'">Cached</span>
+              <span class="badge ai-badge" *ngIf="herb.source_info !== 'cache'">AI Verified</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

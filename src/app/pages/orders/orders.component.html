@@ -1,0 +1,19 @@
+<section class="page-container">
+  <div class="page-inner">
+    <div class="glass-card card">
+      <h2>Order Tracking & History</h2>
+      <div class="entry" *ngFor="let order of orders">
+        <div>
+          <p><strong>{{ order.id }}</strong></p>
+          <p>{{ order.createdAt | date: 'medium' }}</p>
+          <p>Subscription: {{ order.subscription }}</p>
+        </div>
+        <div>
+          <p>Status: <strong>{{ order.status }}</strong></p>
+          <p>{{ order.items.length }} item(s)</p>
+        </div>
+      </div>
+      <p *ngIf="!orders.length">No orders found.</p>
+    </div>
+  </div>
+</section>

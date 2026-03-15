@@ -1,0 +1,99 @@
+<div class="app-shell">
+  <!-- Ambient background -->
+  <div class="bg-ambient"></div>
+
+  <!-- Glass Pill Navbar -->
+  <header class="site-header">
+    <nav class="nav-glass">
+      <div class="nav-brand" (click)="goHome()" role="button" tabindex="0" (keydown.enter)="goHome()">
+        <div class="brand-icon">
+          <span class="material-symbols-outlined">auto_awesome</span>
+        </div>
+        <span class="brand-name">Ayusutra</span>
+      </div>
+
+      <div class="nav-links hide-mobile">
+        <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+        <a routerLink="/herbs" routerLinkActive="active">Herbs</a>
+        <a routerLink="/about" routerLinkActive="active">About</a>
+        <a routerLink="/contact" routerLinkActive="active">Contact</a>
+        <ng-container *ngIf="isAuthenticated">
+          <a [routerLink]="dashboardRoute" routerLinkActive="active">Dashboard</a>
+          <a *ngIf="currentUser?.role !== 'doctor'" routerLink="/consult" routerLinkActive="active">Consult</a>
+        </ng-container>
+      </div>
+
+      <div class="nav-actions">
+        <button *ngIf="isAuthenticated" class="nav-icon-btn" aria-label="Cart" (click)="goCart()">
+          <span class="material-symbols-outlined">shopping_bag</span>
+          <span *ngIf="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
+        </button>
+
+        <ng-container *ngIf="isAuthenticated; else signInBtn">
+          <div class="user-menu-wrap">
+            <button class="nav-icon-btn user-avatar" aria-label="Profile menu" (click)="toggleUserMenu()">
+              <span class="material-symbols-outlined">person</span>
+            </button>
+            <div class="user-dropdown glass-dark" *ngIf="showUserMenu">
+              <a routerLink="/dashboard/profile" (click)="closeUserMenu()">
+                <span class="material-symbols-outlined icon-sm">account_circle</span>
+                Profile
+              </a>
+              <a [routerLink]="dashboardRoute" (click)="closeUserMenu()">
+                <span class="material-symbols-outlined icon-sm">dashboard</span>
+                Dashboard
+              </a>
+              <a routerLink="/ai-assistant" (click)="closeUserMenu()">
+                <span class="material-symbols-outlined icon-sm">psychology</span>
+                AI Assistant
+              </a>
+              <a routerLink="/medical-report-analyzer" (click)="closeUserMenu()">
+                <span class="material-symbols-outlined icon-sm">description</span>
+                Report Analyzer
+              </a>
+              <div class="dropdown-divider"></div>
+              <a routerLink="/logout" (click)="closeUserMenu()" class="logout-link">
+                <span class="material-symbols-outlined icon-sm">logout</span>
+                Logout
+              </a>
+            </div>
+          </div>
+        </ng-container>
+        <ng-template #signInBtn>
+          <a routerLink="/login" class="btn btn-outline-gold btn-pill sign-in-btn">Sign In</a>
+          <a routerLink="/register" class="btn btn-gold btn-pill sign-up-btn hide-mobile">Sign Up</a>
+        </ng-template>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer glass">
+    <div class="container footer-inner">
+      <div class="footer-links">
+        <a routerLink="/about">About Ayurveda</a>
+        <a *ngIf="currentUser?.role !== 'doctor'" routerLink="/consult/doctors">Find Doctors</a>
+        <a routerLink="/herbs">Herbal Library</a>
+        <a routerLink="/contact">Contact</a>
+      </div>
+      <div class="footer-right">
+        <span class="footer-copy">© 2025 Ayusutra AI. Nature meets intelligence.</span>
+        <div class="footer-socials">
+          <a href="#" class="social-icon glass" aria-label="Website">
+            <span class="material-symbols-outlined" style="font-size: 14px">public</span>
+          </a>
+          <a href="#" class="social-icon glass" aria-label="Email">
+            <span class="material-symbols-outlined" style="font-size: 14px">mail</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <app-toast></app-toast>
+</div>

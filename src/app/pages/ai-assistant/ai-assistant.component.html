@@ -1,0 +1,57 @@
+<section class="page-container">
+  <div class="page-inner">
+    <header class="glass-card card page-header">
+      <h1>AI Assistant</h1>
+      <p>Ayurvedic guidance assistant for symptom framing, self-care questions, and next-step direction.</p>
+    </header>
+
+    <section class="glass-card card summary-card">
+      <h2>Suggested Questions</h2>
+      <div class="chip-list">
+        <button class="btn btn-outline" type="button" *ngFor="let q of suggestedQuestions" (click)="applySuggestedQuestion(q)">
+          {{ q }}
+        </button>
+      </div>
+      <div class="alert" *ngIf="doshaPrompt">
+        <p>{{ doshaPrompt }}</p>
+        <button class="btn btn-outline" type="button" (click)="updateDoshaContext()">Update Dosha Context</button>
+      </div>
+    </section>
+
+    <section class="glass-card card">
+      <h2>Assistant Conversation</h2>
+      <div class="chat-box">
+        <div class="message" *ngFor="let m of messages" [class.user]="m.sender === 'user'">
+          <strong>{{ m.sender === 'user' ? 'You' : 'Assistant' }}</strong>
+          <p>{{ m.text }}</p>
+          <small *ngIf="m.riskLevel">Risk: {{ m.riskLevel }}</small>
+          <small *ngIf="m.contextUsed?.length">Based on: {{ m.contextUsed?.slice(0, 3)?.join(' | ') }}</small>
+          <small *ngIf="m.safetyNote">{{ m.safetyNote }}</small>
+        </div>
+        <p *ngIf="loading">Analyzing dosha pattern...</p>
+      </div>
+
+      <div class="input-row">
+        <input [(ngModel)]="query" placeholder="Describe your symptoms..." (keyup.enter)="ask()" />
+        <button class="btn btn-primary" (click)="ask()">Send</button>
+      </div>
+
+      <div class="alert" *ngIf="suggestDoctor">
+        <p>Symptoms may exceed safe self-care limits.</p>
+        <button class="btn btn-outline" (click)="consultDoctor()">Consult Doctor Now</button>
+      </div>
+    </section>
+
+    <section class="glass-card card support-card">
+      <h2>Contextual Hints</h2>
+      <ul>
+        <li *ngFor="let hint of contextualHints">{{ hint }}</li>
+      </ul>
+      <div class="recent-topics" *ngIf="recentTopics.length">
+        <h3>Recent Topics Discussed</h3>
+        <p *ngFor="let topic of recentTopics">{{ topic }}</p>
+      </div>
+      <p *ngIf="!recentTopics.length" class="empty-state">No recent topics yet. Ask your first personalized question.</p>
+    </section>
+  </div>
+</section>

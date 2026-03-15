@@ -1,0 +1,23 @@
+.page-container {
+  padding: var(--space-lg) var(--page-inline) var(--space-xl);
+}
+
+.page-inner {
+  width: min(100%, 47.5rem);
+  margin: 0 auto;
+}
+
+.card {
+  padding: 1.2rem;
+}
+
+.form {
+  display: grid;
+  gap: 0.6rem;
+}
+
+select {
+  border: 1px solid rgba(20, 74, 57, 0.2);
+  border-radius: 12px;
+  padding: 0.65rem;
+}

@@ -1,0 +1,69 @@
+<section class="page-container">
+  <div class="page-inner">
+    <header class="glass-card card page-header">
+      <h1>{{ pageTitle }}</h1>
+      <p>Daily and seasonal rhythm guidance tailored to your current dosha state.</p>
+    </header>
+
+    <div class="glass-card card" *ngIf="loading">
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-line"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+    </div>
+
+    <div class="glass-card card" *ngIf="!loading && error">
+      <h2>Dinacharya & Ritucharya</h2>
+      <p>{{ error }}</p>
+      <a class="btn btn-outline" routerLink="/dosha-assessment">Take Dosha Assessment</a>
+    </div>
+
+    <section class="glass-card card summary-section" *ngIf="!loading && !error">
+      <h2>Summary</h2>
+      <p>{{ basisLine }}</p>
+      <p><strong>Time-based overview:</strong> {{ timeBasedOverview }}</p>
+      <p><strong>Today vs Recommended:</strong> {{ todayVsRecommended }}</p>
+      <p>Recommended flow for {{ dosha }} support. Timezone: <strong>{{ timezone }}</strong>. Refreshed for today.</p>
+    </section>
+
+    <section class="glass-card card" *ngIf="!loading && !error">
+      <h2>Today's Actionable Routine</h2>
+      <div class="shloka-box">
+        <p><strong>{{ language === 'hi' ? 'श्लोक/अर्थ' : 'Shloka/Meaning' }}:</strong> {{ shlokaText }}</p>
+        <p *ngFor="let tip of planTips">{{ tip }}</p>
+        <p *ngIf="reminderStatus">{{ reminderStatus }}</p>
+        <button class="btn btn-outline" (click)="toggleReminderControls()">
+          {{ remindersEnabled ? 'Disable Reminders' : 'Enable Reminders' }}
+        </button>
+      </div>
+      <div class="routine-list">
+        <div class="routine-item" *ngFor="let item of routine">
+          <div class="routine-head">
+            <h3>{{ item.title }}</h3>
+            <button class="btn btn-outline btn-sm" type="button" (click)="toggleRoutineBookmark(item)">
+              {{ isRoutineBookmarked(item) ? 'Saved' : 'Save' }}
+            </button>
+          </div>
+          <p><strong>Time:</strong> {{ item.time }}</p>
+          <p><strong>Action:</strong> {{ item.details }}</p>
+          <p *ngIf="item.reason"><strong>Why:</strong> {{ item.reason }}</p>
+          <button class="btn btn-outline" (click)="addReminder(item)">
+            {{ isReminderActive(item) ? 'Disable Reminder' : 'Set Reminder' }}
+          </button>
+        </div>
+      </div>
+      <p *ngIf="!routine?.length" class="empty-state">No routine items yet. Complete your dosha profile to unlock daily recommendations.</p>
+    </section>
+
+    <section class="glass-card card support-section" *ngIf="!loading && !error">
+      <h2>Gentle Reminders</h2>
+      <ul>
+        <li *ngFor="let reminder of gentleReminders">{{ reminder }}</li>
+      </ul>
+      <div class="actions">
+        <a class="btn btn-outline" routerLink="/diet-plan">Open Diet Plan</a>
+        <a class="btn btn-outline" routerLink="/consult">Open Consultations</a>
+      </div>
+    </section>
+  </div>
+</section>

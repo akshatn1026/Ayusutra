@@ -1,0 +1,36 @@
+<section class="page-container">
+  <div class="page-inner cart-page">
+    <h1>My Cart</h1>
+
+    <p *ngIf="loading">Loading cart...</p>
+
+    <ng-container *ngIf="!loading">
+      <p *ngIf="!items.length">Your cart is empty.</p>
+
+      <div class="cart-list" *ngIf="items.length">
+        <article class="cart-item" *ngFor="let item of items">
+          <img [src]="item.image" [alt]="item.name" />
+          <div>
+            <h3>{{ item.name }}</h3>
+            <p>{{ item.deliveryLabel }}</p>
+            <p>
+              <strong>${{ item.unitPrice | number: '1.2-2' }}</strong>
+              <span>${{ item.oldPrice | number: '1.2-2' }}</span>
+            </p>
+          </div>
+          <div class="qty">
+            <button type="button" (click)="updateQty(item, item.qty - 1)">-</button>
+            <span>{{ item.qty }}</span>
+            <button type="button" (click)="updateQty(item, item.qty + 1)">+</button>
+          </div>
+          <button type="button" class="remove" (click)="remove(item)">Remove</button>
+        </article>
+      </div>
+
+      <div class="cart-summary" *ngIf="items.length">
+        <p>Subtotal: <strong>${{ subtotal | number: '1.2-2' }}</strong></p>
+        <button type="button" (click)="checkout()">Checkout</button>
+      </div>
+    </ng-container>
+  </div>
+</section>

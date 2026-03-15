@@ -1,0 +1,168 @@
+<section class="page-container">
+  <div class="page-inner">
+    <header class="glass-card card page-header" *ngIf="!loading">
+      <h1>Talk to an Ayurvedic Doctor Today</h1>
+      <p>Get personalized guidance based on your dosha and health history.</p>
+      <div class="hero-cta-row">
+        <button class="btn btn-primary" (click)="scrollToBooking()">Book Consultation</button>
+      </div>
+    </header>
+
+    <div class="glass-card card" *ngIf="loading">
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-line"></div>
+      <div class="skeleton skeleton-card"></div>
+    </div>
+
+    <div #bookingFlow class="glass-card card" *ngIf="!loading && isPatient">
+      <p *ngIf="error" class="field-error">{{ error }}</p>
+      <p *ngIf="networkHint" class="helper-text">{{ networkHint }}</p>
+
+      <section class="trust-row">
+        <p class="trust-item">Verified Ayurvedic Doctors</p>
+        <p class="trust-item">Consultations are private & secure</p>
+        <p class="trust-item">Your health history is visible only to your doctor</p>
+      </section>
+
+      <section class="summary-grid">
+        <article class="summary-box">
+          <h3>Upcoming</h3>
+          <p>{{ upcomingConsultations.length }} consultations</p>
+        </article>
+        <article class="summary-box">
+          <h3>Past</h3>
+          <p>{{ pastConsultations.length }} consultations</p>
+        </article>
+      </section>
+
+      <section class="wizard">
+        <article class="wizard-step" [class.active]="step === 1">
+          <h2>Step 1: Choose Consultation Type</h2>
+          <p>Recommended for you: <strong>{{ modeLabel(recommendedMode) }}</strong></p>
+          <p>{{ selectedModeDescription }}</p>
+          <div class="step-actions">
+            <button class="btn btn-outline" (click)="onModeSelected('chat')">Chat</button>
+            <button class="btn btn-outline" (click)="onModeSelected('audio')">Audio Call</button>
+            <button class="btn btn-outline" (click)="onModeSelected('video')">Video Call</button>
+          </div>
+        </article>
+
+        <article class="wizard-step" [class.active]="step === 2 || step > 2">
+          <h2>Step 2: Select Doctor</h2>
+          <div class="grid" *ngIf="continuityDoctors.length">
+            <div class="entry" *ngFor="let c of continuityDoctors">
+              <div>
+                <p><strong>{{ c.doctorName }}</strong> <span class="badge">Previous doctor</span></p>
+                <p>{{ c.specialization }}</p>
+                <p>Consulted {{ c.totalBooked }} time(s) | Last: {{ formatSlot(c.lastConsultedAt) }}</p>
+              </div>
+              <button class="btn btn-outline" (click)="rebookSameDoctor(c.doctorId, c.recentIssues[0] || '')">Rebook Same Doctor</button>
+            </div>
+          </div>
+          <div class="step-actions">
+            <button class="btn btn-primary" (click)="onAutoAssign()">Auto-assign best available doctor</button>
+          </div>
+          <div class="grid" *ngIf="doctorsLoading">
+            <div class="entry" *ngFor="let i of [1,2,3]">
+              <div class="skeleton skeleton-line"></div>
+            </div>
+          </div>
+          <div class="grid">
+            <div class="entry" *ngFor="let d of doctors">
+              <div>
+                <p><strong>{{ d.name }}</strong></p>
+                <p>{{ d.specialization.join(', ') }}</p>
+                <p>{{ d.experienceYears }} years | {{ d.languages.join(', ') }}</p>
+                <p><strong>Next slot:</strong> {{ d.nextAvailableSlot ? formatSlot(d.nextAvailableSlot) : 'Not available' }}</p>
+                <p *ngIf="isDoctorRecommended(d)"><span class="badge">Recommended for you</span></p>
+              </div>
+              <button class="btn btn-outline" (click)="onChooseDoctor(d)">Consult Now</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="wizard-step" [class.active]="step === 3 || step > 3">
+          <h2>Step 3: Choose Slot & Confirm</h2>
+          <p>{{ selectedDoctorLabel }}</p>
+          <div class="grid" *ngIf="!autoAssign; else autoAssignMessage">
+            <div class="entry" *ngIf="slotsLoading">
+              <div class="skeleton skeleton-line"></div>
+            </div>
+            <div class="entry" *ngFor="let slot of slots">
+              <div>
+                <p><strong>{{ formatSlot(slot.startAt) }}</strong></p>
+                <p>Duration: {{ slot.durationMinutes }} min | Mode: {{ slot.mode }}</p>
+              </div>
+              <button class="btn btn-outline" (click)="selectSlot(slot)">Choose Slot</button>
+            </div>
+          </div>
+          <ng-template #autoAssignMessage>
+            <p>Best available doctor and slot will be assigned automatically at confirmation.</p>
+          </ng-template>
+          <div *ngIf="suggestedAlternatives.length">
+            <p><strong>Suggested next slots:</strong></p>
+            <p *ngFor="let alt of suggestedAlternatives">{{ formatSlot(alt) }}</p>
+          </div>
+          <textarea rows="2" maxlength="320" [(ngModel)]="issueContext" placeholder="What would you like to consult about?"></textarea>
+          <div class="chips">
+            <button class="btn btn-ghost" type="button" *ngFor="let item of issueSuggestions" (click)="issueContext = item">{{ item }}</button>
+          </div>
+          <p><strong>Mode:</strong> {{ mode }}</p>
+          <p><strong>Doctor:</strong> {{ selectedDoctorLabel }}</p>
+          <p><strong>Time:</strong> {{ selectedSlot ? formatSlot(selectedSlot.startAt) : 'Best next available' }}</p>
+          <p><strong>Issue:</strong> {{ issueContext || 'Not provided' }}</p>
+          <button class="btn btn-primary" (click)="confirmBooking()" [disabled]="bookingLoading">
+            <span *ngIf="!bookingLoading">Confirm Booking</span>
+            <span *ngIf="bookingLoading">Confirming...</span>
+          </button>
+        </article>
+
+        <article class="wizard-step success" *ngIf="step === 4 && bookingSuccess">
+          <h2>Booking Confirmed</h2>
+          <p><strong>Doctor:</strong> {{ bookingSuccess.doctor.name }}</p>
+          <p><strong>Mode:</strong> {{ bookingSuccess.booking.mode }}</p>
+          <p><strong>Time:</strong> {{ formatSlot(bookingSuccess.booking.scheduledTime) }}</p>
+          <p>What happens next: join from your dashboard at scheduled time. Confirmation is sent via email/SMS.</p>
+          <div class="step-actions">
+            <button class="btn btn-primary" (click)="openSession(bookingSuccess.booking)">Start Consultation</button>
+            <button class="btn btn-outline" (click)="resetFlow()">Book Another</button>
+          </div>
+        </article>
+      </section>
+    </div>
+
+    <div class="glass-card card" *ngIf="!loading">
+      <h2>Upcoming Consultations</h2>
+      <div class="grid" *ngIf="upcomingConsultations.length; else noUpcoming">
+        <div class="entry" *ngFor="let c of upcomingConsultations">
+          <div>
+            <p><strong>{{ c.doctorName || c.doctorId }}</strong></p>
+            <p>{{ c.doctorSpecialization }}</p>
+            <p>{{ formatSlot(c.scheduledTime) }} | {{ c.mode }} | {{ c.duration }} min</p>
+          </div>
+          <div class="entry-actions">
+            <button class="btn btn-outline" (click)="openSession(c)">Start</button>
+            <button class="btn btn-ghost" (click)="cancelBooking(c)">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <ng-template #noUpcoming>
+        <p>No upcoming consultations.</p>
+      </ng-template>
+
+      <h2>Past Consultations</h2>
+      <div class="grid" *ngIf="pastConsultations.length; else noHistory">
+        <div class="entry" *ngFor="let c of pastConsultations">
+          <div>
+            <p><strong>{{ c.doctorName || c.doctorId }}</strong></p>
+            <p>{{ formatSlot(c.scheduledTime) }} | {{ c.mode }} | {{ c.status }}</p>
+          </div>
+          <button class="btn btn-outline" (click)="rebookSameDoctor(c.doctorId, c.issueContext)">Rebook</button>
+        </div>
+      </div>
+      <ng-template #noHistory>
+        <p>No consultation history yet.</p>
+      </ng-template>
+    </div>
+  </div>
+</section>
