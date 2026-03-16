@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: '/api',
+  apiUrl: 'https://ayusutra-backend.onrender.com',
   appName: 'Ayusutra',
   version: '1.0.0-dev',
   supabaseUrl: 'https://uvhvheclcrgqbaslvsep.supabase.co',
