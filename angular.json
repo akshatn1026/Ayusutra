@@ -28,7 +28,8 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss",`n              "src/_animations.scss"
+              "src/styles.scss",
+              "src/_animations.scss"
             ],
             "scripts": []
           },
@@ -90,7 +91,8 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss",`n              "src/_animations.scss"
+              "src/styles.scss",
+              "src/_animations.scss"
             ],
             "scripts": []
           }
