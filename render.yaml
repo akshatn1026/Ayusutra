@@ -1,0 +1,42 @@
+services:
+  - type: web
+    runtime: node
+    name: ayusutra-backend
+    buildCommand: npm ci
+    startCommand: npm run render:start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CORS_ORIGINS
+        value: https://ayusutra-frontend.onrender.com
+      - key: PUBLIC_API_URL
+        value: https://ayusutra-backend.onrender.com
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+  - type: web
+    runtime: static
+    name: ayusutra-frontend
+    buildCommand: npm ci && npm run render:build
+    staticPublishPath: dist/ayustra
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: FRONTEND_API_URL
+        value: https://ayusutra-backend.onrender.com
+      - key: FRONTEND_URL
+        value: https://ayusutra-frontend.onrender.com
+      - key: FRONTEND_SUPABASE_URL
+        fromService:
+          type: web
+          name: ayusutra-backend
+          envVarKey: SUPABASE_URL
+      - key: FRONTEND_SUPABASE_ANON_KEY
+        sync: false

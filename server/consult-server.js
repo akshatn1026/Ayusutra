@@ -30,16 +30,66 @@ function loadEnvFile() {
 
 loadEnvFile();
 
-const PORT = process.env.CONSULT_PORT ? Number(process.env.CONSULT_PORT) : 4000;
+const DEFAULT_FRONTEND_ORIGINS = [
+  'https://ayusutra-frontend.onrender.com',
+  'http://localhost:4200'
+];
+const PORT = Number(process.env.PORT || process.env.CONSULT_PORT || 4000);
+const ALLOWED_CORS_ORIGINS = (
+  String(process.env.CORS_ORIGINS || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean).length
+    ? String(process.env.CORS_ORIGINS || '')
+        .split(',')
+        .map((origin) => origin.trim())
+        .filter(Boolean)
+    : DEFAULT_FRONTEND_ORIGINS
+);
+
+function trimTrailingSlash(value) {
+  return String(value || '').trim().replace(/\/+$/, '');
+}
+
+function getServerBaseUrl(req) {
+  const configured = trimTrailingSlash(process.env.PUBLIC_API_URL || process.env.RENDER_EXTERNAL_URL || '');
+  if (configured) return configured;
+
+  const forwardedProto = String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim();
+  const forwardedHost = String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim();
+  const protocol = forwardedProto || req.protocol || 'https';
+
+  return forwardedHost ? `${protocol}://${forwardedHost}` : '';
+}
+
+function buildServerUrl(req, pathname) {
+  const baseUrl = getServerBaseUrl(req);
+  return baseUrl ? `${baseUrl}${pathname}` : pathname;
+}
 
 const app = express();
 app.use(cors({
-  origin: 'https://ayusutra-frontend.onrender.com',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  origin(origin, callback) {
+    if (!origin || ALLOWED_CORS_ORIGINS.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error(`Origin ${origin} is not allowed by CORS.`));
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
 }));
 app.get('/', (_req, res) => {
   res.status(200).json({ status: 'ok', message: 'Ayusutra backend is running' });
+});
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    service: 'ayusutra-backend',
+    port: PORT,
+    frontendOrigins: ALLOWED_CORS_ORIGINS,
+    baseUrl: getServerBaseUrl(req) || null
+  });
 });
 app.use(express.json());
 app.use('/api/consultations', consultationRoutes);
@@ -2780,10 +2830,6 @@ async function resolveMedicineInfo(query) {
   return hasData ? merged : null;
 }
 
-app.get('/api/health', (_req, res) => {
-  res.json({ ok: true, ts: nowIso() });
-});
-
 app.post(['/api/auth/signup', '/auth/signup'], async (req, res) => {
   try {
     const { email, password, name, ...otherFields } = req.body;
@@ -3237,29 +3283,114 @@ app.post('/api/newsletter', async (req, res) => {
   }
 });
 
+function storeTableMissing(error) {
+  const message = String(error?.message || '').toLowerCase();
+  const details = String(error?.details || '').toLowerCase();
+  return message.includes('relation') || details.includes('relation') || String(error?.code || '') === 'PGRST205';
+}
+
+function normalizeStoreCategory(row) {
+  return String(row?.name || row?.title || row?.category || row?.slug || '').trim();
+}
+
+function toFiniteNumber(value, fallback = 0) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function slugifyAssetName(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function mapStoreProduct(row) {
+  const name = String(row?.name || row?.title || 'Ayusutra Product').trim();
+  const price = toFiniteNumber(row?.sale_price ?? row?.price ?? row?.final_price, 0);
+  const oldPriceCandidate = toFiniteNumber(row?.old_price ?? row?.mrp ?? row?.list_price ?? row?.price, price);
+  const oldPrice = Math.max(price, oldPriceCandidate);
+  const discountPercent = oldPrice > price
+    ? Math.round(((oldPrice - price) / oldPrice) * 100)
+    : 0;
+
+  return {
+    id: String(row?.id || crypto.randomUUID()),
+    name,
+    image: String(row?.image || row?.image_url || '').trim() || `/assets/products/${slugifyAssetName(name)}.png`,
+    price,
+    oldPrice,
+    category: String(row?.category || row?.type || 'Ayurvedic Care').trim(),
+    discountPercent,
+    deliveryLabel: String(row?.delivery_label || 'Ships in 3-5 days').trim()
+  };
+}
+
+function filterStoreProducts(items, filters) {
+  const q = String(filters?.q || '').trim().toLowerCase();
+  const category = String(filters?.category || '').trim().toLowerCase();
+  const discountOnly = !!filters?.discountOnly;
+
+  return (items || []).filter((item) => {
+    const matchesQuery = !q || item.name.toLowerCase().includes(q) || item.category.toLowerCase().includes(q);
+    const matchesCategory = !category || item.category.toLowerCase() === category;
+    const matchesDiscount = !discountOnly || item.discountPercent > 0;
+    return matchesQuery && matchesCategory && matchesDiscount;
+  });
+}
+
 app.get('/api/store/products', async (req, res) => {
-  const category = req.query.category;
-  let query = supabase.from('products').select('*');
-  if (category) query = query.eq('category', category);
-  const result = await query;
-  if (!result) return res.status(500).json({ error: 'Database query failed (result undefined)' });
-  const { data, error } = result;
-  if (error) {
-    console.error('products error:', error);
-    return res.status(500).json({ error: error.message });
+  try {
+    const filters = {
+      q: String(req.query.q || '').trim(),
+      category: String(req.query.category || '').trim(),
+      discountOnly: String(req.query.discount || '').trim() === '1'
+    };
+
+    let result = await supabase.from('products').select('*');
+    if (result?.error && storeTableMissing(result.error)) {
+      result = await supabase.from('medicines').select('*');
+    }
+
+    if (!result) return res.status(500).json({ error: 'Database query failed (result undefined)' });
+    const { data, error } = result;
+    if (error) {
+      console.error('products error:', error);
+      return res.status(500).json({ error: error.message });
+    }
+
+    const items = filterStoreProducts((data || []).map(mapStoreProduct), filters);
+    return res.json({ items });
+  } catch (error) {
+    console.error('store products error:', error);
+    return res.status(500).json({ error: error?.message || 'Unable to load store products.' });
   }
-  res.json(data);
 });
 
 app.get('/api/store/categories', async (req, res) => {
-  const result = await supabase.from('categories').select('*');
-  if (!result) return res.status(500).json({ error: 'Database query failed (result undefined)' });
-  const { data, error } = result;
-  if (error) {
-    console.error('categories error:', error);
-    return res.status(500).json({ error: error.message });
+  try {
+    let result = await supabase.from('categories').select('*');
+    if (result?.error && storeTableMissing(result.error)) {
+      result = await supabase.from('medicines').select('category');
+    }
+
+    if (!result) return res.status(500).json({ error: 'Database query failed (result undefined)' });
+    const { data, error } = result;
+    if (error) {
+      console.error('categories error:', error);
+      return res.status(500).json({ error: error.message });
+    }
+
+    const items = Array.from(
+      new Set((data || []).map(normalizeStoreCategory).filter(Boolean))
+    ).sort((a, b) => a.localeCompare(b));
+
+    return res.json({ items });
+  } catch (error) {
+    console.error('store categories error:', error);
+    return res.status(500).json({ error: error?.message || 'Unable to load store categories.' });
   }
-  res.json(data);
 });
 
 app.get('/api/consultation/recommendation', authRequired, (req, res) => {
@@ -4176,7 +4307,7 @@ app.post('/api/prescriptions', async (req, res) => {
     await generatePrescriptionPdf(record, doctorDetails, pdfPath);
     
     // Update PDF URL in Supabase
-    const pdfUrl = `/api/prescriptions/${safeId}/download`;
+    const pdfUrl = buildServerUrl(req, `/api/prescriptions/${safeId}/download`);
     await supabase.from('prescriptions').update({ pdf_url: pdfUrl }).eq('id', safeId);
     
     res.status(201).json({ success: true, prescription: { ...record, pdf_url: pdfUrl } });
@@ -4196,7 +4327,13 @@ app.get('/api/prescriptions/patient/:patientId', async (req, res) => {
       .order('created_at', { ascending: false });
       
     if (error) throw error;
-    res.json({ success: true, prescriptions: data });
+    res.json({
+      success: true,
+      prescriptions: (data || []).map((item) => ({
+        ...item,
+        pdf_url: item.pdf_url ? buildServerUrl(req, `/api/prescriptions/${item.id}/download`) : item.pdf_url
+      }))
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -4421,6 +4558,26 @@ app.post(['/api/ai/ask', '/ai/ask'], async (req, res) => {
   }
 });
 
+app.post('/api/ai/guidance', async (req, res) => {
+  try {
+    const prompt = String(req.body?.content || req.body?.query || req.body?.message || '').trim();
+    if (!prompt) {
+      return res.status(400).json({ success: false, error: 'Content is required.' });
+    }
+
+    const aiResult = await getAIResponse(prompt);
+    res.json({
+      success: true,
+      text: aiResult.response || '',
+      source: aiResult.source || 'fallback',
+      url: aiResult.url || null
+    });
+  } catch (err) {
+    console.error('AI guidance error:', err);
+    res.status(500).json({ success: false, error: 'Failed to generate AI guidance', details: err.message });
+  }
+});
+
 // ═══════════════════════════════════════════════════════
 // ENCYCLOPEDIA ROUTES
 // ═══════════════════════════════════════════════════════
@@ -4556,11 +4713,11 @@ app.post(['/api/ai/chat', '/ai/chat'], async (req, res) => {
   }
 });
 
-server.listen(process.env.PORT || 4000, () => {
-  console.log('Server running on port', process.env.PORT || 4000)
+server.listen(PORT, () => {
+  console.log('Server running on port', PORT)
 }).on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
-    console.error('Port already in use. Kill the process using: npx kill-port 4000')
+    console.error(`Port ${PORT} is already in use.`)
     process.exit(1)
   }
 });

@@ -9,6 +9,7 @@ import { AyurvedaDataService } from '../../../services/ayurveda-data.service';
 import { DailySymptomLog, SymptomSeverity, SymptomTrackingService } from '../../../services/symptom-tracking.service';
 import { HealthTimelineEvent, HealthTimelineService } from '../../../services/health-timeline.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
+import { buildApiUrl } from '../../../core/config/runtime-config';
 
 interface InsightCard {
   id: string;
@@ -689,7 +690,7 @@ export class UserDashboardComponent implements OnInit, OnDestroy {
 
   downloadRealPdf(pdfUrl: string): void {
     if (!pdfUrl) return;
-    window.open(pdfUrl, '_blank');
+    window.open(buildApiUrl(pdfUrl), '_blank');
   }
 
   requestEmergencyConsult(): void {

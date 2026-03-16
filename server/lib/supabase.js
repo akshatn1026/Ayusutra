@@ -23,11 +23,29 @@ if (!process.env['SUPABASE_URL']) {
   loadEnv();
 }
 
+function decodeJwtRole(token) {
+  try {
+    const payload = String(token || '').split('.')[1];
+    if (!payload) return '';
+    const decoded = Buffer.from(payload, 'base64url').toString('utf8');
+    return JSON.parse(decoded)?.role || '';
+  } catch {
+    return '';
+  }
+}
+
 const supabaseUrl = process.env['SUPABASE_URL'];
 const supabaseServiceKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
 
 if (!supabaseUrl || !supabaseServiceKey) {
   console.error('❌ Supabase configuration missing! Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env');
+}
+
+const supabaseKeyRole = decodeJwtRole(supabaseServiceKey);
+if (supabaseServiceKey && supabaseKeyRole && supabaseKeyRole !== 'service_role') {
+  console.warn(
+    `⚠️ SUPABASE_SERVICE_ROLE_KEY appears to be a ${supabaseKeyRole} key. Use the service_role key on the backend or admin routes will fail.`
+  );
 }
 
 const supabase = createClient(supabaseUrl || '', supabaseServiceKey || '', {

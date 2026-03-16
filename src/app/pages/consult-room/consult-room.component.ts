@@ -5,6 +5,7 @@ import { AyurvedaDataService, ConsultationContextRecord } from '../../services/a
 import { ConsultationMode, ConsultationRecord, DoctorProfile } from '../../models/ayurveda.models';
 import { ConsultationBookingService, DoctorPatientBrief } from '../../services/consultation-booking.service';
 import { SupabaseService } from '../../core/services/supabase.service';
+import { buildApiUrl } from '../../core/config/runtime-config';
 
 @Component({
   selector: 'app-consult-room',
@@ -38,7 +39,7 @@ export class ConsultRoomComponent implements OnInit, OnDestroy {
   outgoingCall: 'audio' | 'video' | null = null;
   activeCall: 'audio' | 'video' | null = null;
   
-  private readonly realtimeServerBase = 'http://localhost:4000';
+  private readonly realtimeServerBase = buildApiUrl('');
   private channel: any = null;
   private peerConnection: RTCPeerConnection | null = null;
   private localStream: MediaStream | null = null;
@@ -319,7 +320,9 @@ export class ConsultRoomComponent implements OnInit, OnDestroy {
     if (!user) return;
     
     try {
-      const response = await fetch(`${this.realtimeServerBase}/api/sessions/${encodeURIComponent(sessionId)}?userId=${encodeURIComponent(user.id)}`);
+      const response = await fetch(
+        `${buildApiUrl(`/api/sessions/${encodeURIComponent(sessionId)}`)}?userId=${encodeURIComponent(user.id)}`
+      );
       if (response.ok) {
         const serverSession = await response.json();
         const localConsult = this.ayurvedaData.getConsultationBySessionId(sessionId);
@@ -482,7 +485,7 @@ export class ConsultRoomComponent implements OnInit, OnDestroy {
     if (!user) return;
 
     try {
-      const response = await fetch(`${this.realtimeServerBase}/api/sessions/create`, {
+      const response = await fetch(buildApiUrl('/api/sessions/create'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -502,7 +505,7 @@ export class ConsultRoomComponent implements OnInit, OnDestroy {
       this.sessionStatus = `Realtime session ready: ${data.sessionId}`;
     } catch (e: any) {
       this.serverError =
-        `Realtime server unavailable on ${this.realtimeServerBase}. Start it with "npm run consult:server". ` +
+        `Realtime server unavailable on ${this.realtimeServerBase}. Start it with "npm run server". ` +
         `Details: ${e?.message || 'Unknown error'}`;
     }
   }

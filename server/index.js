@@ -34,12 +34,19 @@ function loadEnvFile() {
 loadEnvFile();
 
 // ─── Configuration ───────────────────────────────────────────────────────────
+const defaultCorsOrigins = [
+  'https://ayusutra-frontend.onrender.com',
+  'http://localhost:4200'
+];
+
 const config = {
-  port: process.env.CONSULT_PORT ? Number(process.env.CONSULT_PORT) : 4000,
+  port: Number(process.env.PORT || process.env.CONSULT_PORT || 4000),
   nodeEnv: process.env.NODE_ENV || 'development',
   corsOrigins: process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map(s => s.trim())
-    : ['*'],
+    : defaultCorsOrigins,
+  emailUser: process.env.EMAIL_USER || '',
+  publicApiUrl: process.env.PUBLIC_API_URL || process.env.RENDER_EXTERNAL_URL || '',
 
   // Rate limiting
   rateLimitWindowMs: 60 * 1000,
@@ -75,6 +82,7 @@ function printStartupBanner() {
   console.log(`\n  Environment: ${config.nodeEnv}`);
   console.log(`  Port:        ${config.port}`);
   console.log(`  CORS:        ${config.corsOrigins.join(', ')}`);
+  console.log(`  Public URL:  ${config.publicApiUrl || 'Auto-detected from request'}`);
   console.log(`  Email:       ${config.emailUser ? '✅ Configured' : '❌ Not configured'}`);
   console.log(`  AI:          ${openAIConfigured ? '✅ Configured (GPT-3.5)' : '🆓 Free Wikipedia + DB fallback active'}`);
 

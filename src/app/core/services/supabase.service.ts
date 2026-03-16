@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { environment } from '../../../environments/environment';
+import { getRuntimeConfig } from '../config/runtime-config';
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
@@ -8,9 +8,15 @@ export class SupabaseService {
 
   get client(): SupabaseClient {
     if (!SupabaseService.instance) {
+      const config = getRuntimeConfig();
+      if (!config.supabaseUrl || !config.supabaseAnonKey) {
+        throw new Error(
+          'Supabase runtime configuration is missing. Set FRONTEND_SUPABASE_URL and FRONTEND_SUPABASE_ANON_KEY before building the frontend.'
+        );
+      }
       SupabaseService.instance = createClient(
-        environment.supabaseUrl,
-        environment.supabaseAnonKey,
+        config.supabaseUrl,
+        config.supabaseAnonKey,
         {
           auth: {
             autoRefreshToken: true,

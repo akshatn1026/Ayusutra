@@ -5,6 +5,7 @@ import { AuthService, DoshaAssessmentRecord } from '../../services/auth.service'
 import { AyurvedaDataService } from '../../services/ayurveda-data.service';
 import { HerbRecord, PrescriptionItem, PrescriptionRecord } from '../../models/ayurveda.models';
 import { PdfExportService } from '../../services/pdf-export.service';
+import { buildApiUrl } from '../../core/config/runtime-config';
 
 @Component({
   selector: 'app-prescription',
@@ -195,7 +196,7 @@ export class PrescriptionComponent implements OnInit {
       next: (res) => {
         if (res.success && res.prescription) {
           this.saved = res.prescription;
-          this.prescriptionId = res.prescription._id;
+          this.prescriptionId = res.prescription.id;
           this.status = 'Prescription finalized successfully. PDF generated.';
         } else {
           this.error = 'Unable to create prescription.';
@@ -213,7 +214,7 @@ export class PrescriptionComponent implements OnInit {
       this.error = 'PDF not available';
       return;
     }
-    window.open(pdfUrl, '_blank');
+    window.open(buildApiUrl(pdfUrl), '_blank');
   }
 
   viewPrescription(record: PrescriptionRecord): void {
