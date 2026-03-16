@@ -9,7 +9,8 @@ import { HttpClient } from '@angular/common/http';
 })
 export class HerbsComponent implements OnInit, OnDestroy {
   query = '';
-  herbs: any[] = [];
+  ayusutraResults: any[] = [];
+  wikipediaResults: any[] = [];
   suggestions: any[] = [];
   showSuggestions = false;
   
@@ -120,28 +121,25 @@ export class HerbsComponent implements OnInit, OnDestroy {
     const q = this.query.trim();
     
     if (q.length < 2) {
-      this.herbs = [];
+      this.ayusutraResults = [];
+      this.wikipediaResults = [];
       return;
     }
     
     this.loading = true;
     
-    this.http.get<any>(`/api/herbs/search?q=${encodeURIComponent(q)}`)
+    this.http.get<any>(`/api/encyclopedia?q=${encodeURIComponent(q)}`)
       .subscribe(res => {
         this.loading = false;
         if (res.success) {
-          this.herbs = res.results;
-          if (this.herbs.length === 0) {
+          const results = res.results || [];
+          this.ayusutraResults = results.filter((r: any) => r.source === 'ayusutra');
+          this.wikipediaResults = results.filter((r: any) => r.source === 'wikipedia');
+          
+          if (results.length === 0) {
             this.error = 'No comprehensive data found in the encyclopedia. Try checking spelling.';
-            // Basic hardcoded spell check example for common misspelled terms
             if (q.toLowerCase() === 'ashwa') this.didYouMean = 'Ashwagandha';
             if (q.toLowerCase() === 'brami') this.didYouMean = 'Brahmi';
-          } else if (this.herbs.length > 0 && this.herbs[0].herb_name.toLowerCase() !== q.toLowerCase()) {
-            // If the top result doesn't exactly match the query, subtly suggest it
-             const match = this.herbs.find(h => h.herb_name.toLowerCase() === q.toLowerCase());
-             if (!match) {
-                 this.didYouMean = this.herbs[0].herb_name;
-             }
           }
         } else {
           this.error = 'Failed to search encyclopedias.';
@@ -164,7 +162,7 @@ export class HerbsComponent implements OnInit, OnDestroy {
   }
 
   openHerb(herb: any): void {
-    // Navigate using the exact name which the detail component will fetch via API
-    this.router.navigate(['/herbs', encodeURIComponent(herb.herb_name)]);
+    // Navigate using the ID/Title which the detail component will fetch via API
+    this.router.navigate(['/herbs', encodeURIComponent(herb.id)]);
   }
 }

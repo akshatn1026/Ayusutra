@@ -37,13 +37,13 @@ export class HerbDetailComponent implements OnInit {
 
   fetchHerbDetails(): void {
     this.loading = true;
-    this.http.get<any>(`/api/herbs/${encodeURIComponent(this.herbName)}`)
+    this.http.get<any>(`/api/encyclopedia/${encodeURIComponent(this.herbName)}`)
       .subscribe(res => {
         this.loading = false;
-        if (res.success && res.data) {
-          this.herb = res.data;
+        if (res.entry) {
+          this.herb = res.entry;
         } else {
-          this.error = 'Herb details could not be found or synthesized.';
+          this.error = 'Encyclopedia entry could not be found.';
         }
       }, err => {
         this.loading = false;

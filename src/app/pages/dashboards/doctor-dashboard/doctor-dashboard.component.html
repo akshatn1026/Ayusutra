@@ -22,13 +22,24 @@
     <h1>Doctor Dashboard</h1>
     <div class="doctor-info">
       Welcome, <strong>{{ doctorName }}</strong>
+      
+      <div class="daily-progress">
+        <div class="progress-label">
+          <span>Online Time Today</span>
+          <span>{{ totalOnlineMinutesToday.toFixed(0) }}/{{ dailyLimitMinutes }} mins</span>
+        </div>
+        <div class="progress-bar-container mini">
+          <div class="progress-bar" [style.width.%]="(totalOnlineMinutesToday / dailyLimitMinutes) * 100" [ngClass]="{'bg-warning': totalOnlineMinutesToday > 100, 'bg-danger': totalOnlineMinutesToday >= 120}"></div>
+        </div>
+      </div>
+
       <div class="doctor-status-toggle">
         <label class="switch">
           <input type="checkbox" [(ngModel)]="isOnline" (change)="toggleStatus()">
           <span class="slider round"></span>
         </label>
         <span class="status-text" [ngClass]="{'text-success': isOnline, 'text-muted': !isOnline}">
-          {{ isOnline ? 'Online' : 'Offline' }}
+          {{ isOnline ? 'Ready for Emergency' : 'Unavailable' }}
         </span>
       </div>
     </div>

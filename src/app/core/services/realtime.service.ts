@@ -10,6 +10,8 @@ export class RealtimeService {
   private channels: Map<string, RealtimeChannel> = new Map();
   private onlineDoctorsSubject = new BehaviorSubject<string[]>([]);
   public onlineDoctors$ = this.onlineDoctorsSubject.asObservable();
+  private signalSubject = new BehaviorSubject<{sessionId: string, payload: any} | null>(null);
+  public signaling$ = this.signalSubject.asObservable().pipe(filter(s => s !== null));
 
   constructor(private supabase: SupabaseService) {
     this.initPresence();
@@ -39,22 +41,23 @@ export class RealtimeService {
    */
   joinConsultation(sessionId: string, onMessage: (payload: any) => void) {
     const channelName = `consultation:${sessionId}`;
-    if (this.channels.has(channelName)) return;
-
-    const channel = this.supabase.client.channel(channelName);
+    let channel = this.channels.get(channelName);
+    
+    if (!channel) {
+      channel = this.supabase.client.channel(channelName);
+      this.channels.set(channelName, channel);
+    }
 
     channel
       .on('broadcast', { event: 'chat-message' }, ({ payload }) => onMessage(payload))
       .on('broadcast', { event: 'webrtc-signal' }, ({ payload }) => {
-        // Handle signaling logic here or expose via another observable
+        this.signalSubject.next({ sessionId, payload });
       })
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
           console.log(`Subscribed to consultation ${sessionId}`);
         }
       });
-
-    this.channels.set(channelName, channel);
   }
 
   leaveConsultation(sessionId: string) {

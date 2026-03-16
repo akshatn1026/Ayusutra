@@ -15,40 +15,29 @@
       <!-- Top Section: Image + Basic Info -->
       <div class="top-section glass-card">
         <div class="herb-image-container">
-          <img [src]="herb.image_url || 'assets/images/leaf-placeholder.png'" [alt]="herb.herb_name" class="main-herb-image">
-          <div class="source-badge">
-            <i class="fas" [ngClass]="herb.source_info === 'cache' ? 'fa-database' : 'fa-brain'"></i>
-            {{ herb.source_info === 'cache' ? 'Cached Entry' : 'AI Synthesized' }}
+          <img [src]="herb.imageUrl || 'assets/images/leaf-placeholder.png'" [alt]="herb.title" class="main-herb-image">
+          <div class="source-badge" [ngClass]="herb.source === 'wikipedia' ? 'ai-badge' : ''">
+            <i class="fas" [ngClass]="herb.source === 'wikipedia' ? 'fa-wikipedia-w' : 'fa-database'"></i>
+            {{ herb.source === 'wikipedia' ? 'From Wikipedia' : 'Ayusutra Library' }}
           </div>
         </div>
 
         <div class="basic-info">
           <div class="title-row">
-            <h2>{{ herb.herb_name }}</h2>
+            <h2>{{ herb.title }}</h2>
           </div>
-          <div class="sci-name">
-            <span class="label">Scientific Name:</span>
-            <span class="value">{{ herb.scientific_name || 'N/A' }}</span>
-          </div>
-          <div class="other-names">
-            <span class="label">Other Names:</span>
-            <span class="value">{{ herb.other_names || 'N/A' }}</span>
-          </div>
-          <div class="family">
-            <span class="label">Plant Family:</span>
-            <span class="value">{{ herb.family || 'N/A' }}</span>
-          </div>
-          
           <div class="quick-desc">
-            <h3>Botanical Description</h3>
-            <p>{{ herb.description || 'N/A' }}</p>
-            <p><strong>Parts Used:</strong> {{ herb.parts_used || 'N/A' }}</p>
+            <h3>Encyclopedia Description</h3>
+            <p>{{ herb.content || 'N/A' }}</p>
+          </div>
+          <div *ngIf="herb.url" class="external-link" style="margin-top: 20px;">
+            <a [href]="herb.url" target="_blank" class="btn btn-primary"><i class="fas fa-external-link-alt"></i> Read full article on Wikipedia</a>
           </div>
         </div>
       </div>
 
-      <!-- Bottom Section: Tabs -->
-      <div class="tabs-container glass-card">
+      <!-- Bottom Section (Hidden for encyclopedia since we only have flat content) -->
+      <div class="tabs-container glass-card" *ngIf="false">
         <div class="tabs-header">
           <button [class.active]="activeTab === 'overview'" (click)="setActiveTab('overview')">Overview</button>
           <button [class.active]="activeTab === 'benefits'" (click)="setActiveTab('benefits')">Benefits</button>

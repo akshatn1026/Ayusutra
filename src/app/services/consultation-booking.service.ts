@@ -33,7 +33,8 @@ export interface ConsultationBooking {
   mode: BookingMode;
   scheduledTime: string;
   duration: number;
-  status: 'scheduled' | 'completed' | 'cancelled';
+  status: 'scheduled' | 'confirmed' | 'completed' | 'cancelled';
+  room_id?: string;
   issueContext: string;
   notes: string;
   createdAt: string;
@@ -91,7 +92,7 @@ export interface DoctorPatientBrief {
 
 @Injectable({ providedIn: 'root' })
 export class ConsultationBookingService {
-  private readonly API = '/api/consultation';
+  private readonly API = '/api/consultations';
 
   constructor(private http: HttpClient) {}
 
@@ -121,12 +122,8 @@ export class ConsultationBookingService {
   }
 
   async getAvailability(doctorId: string, mode: BookingMode, days = 7): Promise<BookingSlot[]> {
-    const query = new URLSearchParams();
-    query.set('doctorId', doctorId);
-    query.set('mode', mode);
-    query.set('days', String(days));
     const response = await firstValueFrom(
-      this.http.get<{ slots: BookingSlot[] }>(`${this.API}/availability?${query.toString()}`)
+      this.http.get<{ slots: BookingSlot[] }>(`${this.API}/available-slots/${doctorId}`)
     );
     return response.slots || [];
   }

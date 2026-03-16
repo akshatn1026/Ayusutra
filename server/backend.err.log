@@ -1,0 +1,17 @@
+(node:12528) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+C:\Users\Aksha\OneDrive\Attachments\Desktop\ayustra\server\consult-server.js:813
+  db.prepare('DELETE FROM auth_otps WHERE expires_at < ? OR (is_used = 1 AND used_at IS NOT NULL AND used_at < datetime("now", "-1 day"))').run(now);
+     ^
+
+Error: no such column: "now" - should this be a string literal in single-quotes?
+    at cleanupExpiredAuthData (C:\Users\Aksha\OneDrive\Attachments\Desktop\ayustra\server\consult-server.js:813:6)
+    at Timeout._onTimeout (C:\Users\Aksha\OneDrive\Attachments\Desktop\ayustra\server\consult-server.js:4755:3)
+    at listOnTimeout (node:internal/timers:605:17)
+    at process.processTimers (node:internal/timers:541:7) {
+  code: 'ERR_SQLITE_ERROR',
+  errcode: 1,
+  errstr: 'SQL logic error'
+}
+
+Node.js v25.6.0

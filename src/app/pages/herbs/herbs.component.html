@@ -42,17 +42,29 @@
       </div>
       <p class="error-msg" *ngIf="error">{{ error }}</p>
 
-      <!-- Advanced Grid -->
-      <div class="encyclopedia-grid" *ngIf="!loading && herbs.length > 0">
-        <div class="herb-card" *ngFor="let herb of herbs" (click)="openHerb(herb)">
-          <div class="herb-image" [style.background-image]="'url(' + (herb.image_url || 'assets/images/leaf-placeholder.png') + ')'"></div>
+      <div class="encyclopedia-grid" *ngIf="!loading && ayusutraResults.length > 0">
+        <h3>Ayusutra Library</h3>
+        <div class="herb-card" *ngFor="let item of ayusutraResults" (click)="openHerb(item)">
+          <div class="herb-image" [style.background-image]="'url(assets/images/leaf-placeholder.png)'"></div>
           <div class="herb-info">
-            <h3>{{ herb.herb_name }}</h3>
-            <span class="scientific">{{ herb.scientific_name }}</span>
-            <p class="uses-teaser">{{ truncate(herb.ayurvedic_uses || herb.benefits, 60) }}</p>
+            <h3>{{ item.title }}</h3>
+            <p class="uses-teaser">{{ item.contentPreview }}</p>
             <div class="badges">
-              <span class="badge" *ngIf="herb.source_info === 'cache'">Cached</span>
-              <span class="badge ai-badge" *ngIf="herb.source_info !== 'cache'">AI Verified</span>
+              <span class="badge">Ayusutra Library</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="encyclopedia-grid wikipedia-results" *ngIf="!loading && wikipediaResults.length > 0">
+        <br/>
+        <h3>From Wikipedia</h3>
+        <div class="herb-card wiki-card" *ngFor="let item of wikipediaResults" (click)="openHerb(item)">
+          <div class="herb-info">
+            <h3>{{ item.title }}</h3>
+            <p class="uses-teaser">{{ item.contentPreview }}</p>
+            <div class="badges">
+              <span class="badge wiki-badge"><i class="fab fa-wikipedia-w"></i> Wikipedia</span>
             </div>
           </div>
         </div>

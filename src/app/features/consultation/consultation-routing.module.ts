@@ -2,12 +2,13 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from '../../core/guards/auth.guard';
 import { ConsultComponent } from '../../pages/consult/consult.component';
-import { ConsultRoomComponent } from '../../pages/consult-room/consult-room.component';
+import { ConsultRoomComponent } from './consult-room/consult-room.component';
 import { PrescriptionComponent } from '../../pages/prescription/prescription.component';
 import { DoctorDirectoryComponent } from '../../pages/doctor-directory/doctor-directory.component';
 
 const routes: Routes = [
   { path: '', component: ConsultComponent, canActivate: [AuthGuard] },
+  { path: 'room/:roomId', component: ConsultRoomComponent, canActivate: [AuthGuard] },
   { path: 'session/:sessionId', component: ConsultRoomComponent, canActivate: [AuthGuard] },
   { path: 'doctor/:doctorId', component: ConsultRoomComponent, canActivate: [AuthGuard], data: { role: 'patient' } },
   { path: 'doctors', component: DoctorDirectoryComponent, canActivate: [AuthGuard] },

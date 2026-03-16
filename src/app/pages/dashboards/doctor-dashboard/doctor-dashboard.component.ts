@@ -6,6 +6,7 @@ import { ToastService } from '../../../services/toast.service';
 import { ConsultationBooking, ConsultationBookingService } from '../../../services/consultation-booking.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
 import { Router } from '@angular/router';
+import { AvailabilityService } from '../../../services/availability.service';
 
 @Component({
   selector: 'app-doctor-dashboard',
@@ -23,12 +24,15 @@ export class DoctorDashboardComponent implements OnInit, OnDestroy {
   selectedConsultationId = '';
   isLoading = true;
   loadError = '';
+  totalOnlineMinutesToday = 0;
+  lastStatusChange: string | null = null;
 
-  incomingRequests: { type: 'emergency'|'standard', patientId: string, patientName: string, consultationType?: string, timestamp: string }[] = [];
+  incomingRequests: { type: 'emergency'|'standard', patientId: string, patientName: string, consultationType?: string, timestamp: string, room_id?: string }[] = [];
   private channel: any = null;
   private refreshTimer: any;
   currentUser: User | null = null;
-  isOnline = true;
+  isOnline = false;
+  dailyLimitMinutes = 120; // 2 hours
 
   constructor(
     private authService: AuthService,
@@ -36,13 +40,16 @@ export class DoctorDashboardComponent implements OnInit, OnDestroy {
     private toast: ToastService,
     private consultationBookingService: ConsultationBookingService,
     private router: Router,
-    private supabaseService: SupabaseService
+    private supabaseService: SupabaseService,
+    private availabilityService: AvailabilityService
   ) {}
 
   async ngOnInit(): Promise<void> {
     this.currentUser = this.authService.getCurrentUser();
     try {
       await this.loadDashboard();
+      this.availabilityService.onlineMinutes.subscribe(m => this.totalOnlineMinutesToday = m);
+      this.availabilityService.onlineStatus.subscribe(s => this.isOnline = s);
     } catch (error: any) {
       this.loadError = 'Failed to load dashboard data.';
     } finally {
@@ -72,8 +79,7 @@ export class DoctorDashboardComponent implements OnInit, OnDestroy {
   }
 
   async reloadDashboardQuietly(): Promise<void> {
-    // This method can be used to refresh data without showing loading indicators
-    await this.loadDashboard();
+    await this.loadConsultationSchedule(); // Keep schedule updated
   }
 
   selectPatient(patient: PatientData): void {
@@ -94,19 +100,28 @@ export class DoctorDashboardComponent implements OnInit, OnDestroy {
 
   private setupRealtimeListeners(): void {
     if (!this.currentUser) return;
+
+    // Listen for new consultations where I am the doctor
     this.channel = this.supabaseService.client
-      .channel('doctor_alerts')
-      .on('broadcast', { event: 'emergency-request' }, (payload: any) => {
-        this.addIncomingRequest('emergency', payload.payload);
-      })
-      .on('broadcast', { event: 'consult-request' }, (payload: any) => {
-        this.addIncomingRequest('standard', payload.payload);
-      })
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          this.isOnline = true;
+      .channel('doctor_realtime_alerts')
+      .on('postgres_changes', { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'consultations',
+        filter: `doctor_id=eq.${this.currentUser.id}` 
+      }, (payload: any) => {
+        const newConsult = payload.new;
+        if (newConsult.status === 'confirmed' || newConsult.status === 'active') {
+          this.addIncomingRequest(newConsult.type === 'emergency' ? 'emergency' : 'standard', {
+            patientId: newConsult.patient_id,
+            patientName: 'New Patient', // TODO: Fetch patient name if needed
+            consultationType: newConsult.type,
+            timestamp: newConsult.created_at,
+            room_id: newConsult.room_id
+          });
         }
-      });
+      })
+      .subscribe();
   }
 
   private cleanupRealtime(): void {
@@ -117,15 +132,7 @@ export class DoctorDashboardComponent implements OnInit, OnDestroy {
   }
 
   toggleStatus(): void {
-    if (!this.currentUser) return;
-    
-    if (this.isOnline) {
-      if (!this.channel) this.setupRealtimeListeners();
-      this.toast.show('You are now Online and available for consultations.', 'success');
-    } else {
-      this.cleanupRealtime();
-      this.toast.show('You are now Offline.', 'info');
-    }
+    this.availabilityService.toggleStatus(this.isOnline);
   }
 
   private addIncomingRequest(type: 'emergency'|'standard', data: any): void {
@@ -136,7 +143,8 @@ export class DoctorDashboardComponent implements OnInit, OnDestroy {
         patientId: data.patientId,
         patientName: data.patientName || 'Patient',
         consultationType: data.consultationType || 'chat',
-        timestamp: data.timestamp || new Date().toISOString()
+        timestamp: data.timestamp || new Date().toISOString(),
+        room_id: data.room_id
       });
       this.toast.show(`INCOMING ${type.toUpperCase()} REQUEST`, type === 'emergency' ? 'warning' : 'info');
       
@@ -148,52 +156,16 @@ export class DoctorDashboardComponent implements OnInit, OnDestroy {
 
   async acceptRequest(req: any): Promise<void> {
     if (!this.currentUser) return;
-    const patientId = req.patientId;
     
     try {
-      const response = await fetch('http://localhost:4000/api/sessions/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          patientId: patientId,
-          doctorId: this.currentUser.id,
-          requesterId: this.currentUser.id,
-          requesterRole: 'doctor',
-          initiationType: 'instant'
-        })
-      });
-      const sessionData = await response.json();
-      if (!response.ok) throw new Error(sessionData.error || 'Failed to create session');
-      
-      const sessionId = sessionData.sessionId;
-
-      const eventName = req.type === 'emergency' ? 'emergency-accept' : 'consult-accept';
-      if (this.channel) {
-        this.channel.send({
-          type: 'broadcast',
-          event: eventName,
-          payload: {
-            patientId,
-            doctorName: this.currentUser.fullName || 'Doctor',
-            sessionId: sessionId
-          }
-        });
-      }
-
-      const localConsult = this.ayurvedaData.startConsultation({
-        patientId: patientId,
-        doctorId: this.currentUser.id,
-        initiationType: 'instant'
-      });
-      
-      if (localConsult && sessionId) {
-         localConsult.sessionId = sessionId;
-         localConsult.id = sessionId; 
-         (this.ayurvedaData as any).persistConsultations();
-      }
+      // Set status to active if it's not already
+      await this.supabaseService.client
+        .from('consultations')
+        .update({ status: 'active', started_at: new Date().toISOString() })
+        .eq('room_id', req.room_id);
 
       this.incomingRequests = this.incomingRequests.filter(r => r !== req);
-      this.router.navigate(['/consult/session', sessionId]); 
+      this.router.navigate(['/consult/room', req.room_id]); 
     } catch (e: any) {
       this.toast.show('Failed to connect: ' + e.message, 'error');
     }
@@ -262,7 +234,7 @@ export class DoctorDashboardComponent implements OnInit, OnDestroy {
       const snapshot = await this.consultationBookingService.getMyBookings();
       const today = new Date().toISOString().slice(0, 10);
       this.todaySchedule = snapshot.upcoming
-        .filter((item) => item.scheduledTime.slice(0, 10) === today)
+        .filter((item: any) => item.scheduledTime.slice(0, 10) === today)
         .slice(0, 10);
       this.consultationHistory = snapshot.past.slice(0, 10);
     } catch {

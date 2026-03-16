@@ -181,9 +181,13 @@ export class ConsultComponent implements OnInit, OnDestroy {
   }
 
   async openSession(booking: ConsultationBooking): Promise<void> {
-    if (booking.status !== 'scheduled') return;
-    if (!booking.doctorId) return;
-    await this.router.navigate(['/consult', booking.doctorId]);
+    if (booking.status !== 'scheduled' && booking.status !== 'confirmed') return;
+    const rid = booking.room_id || (booking as any).room_id;
+    if (!rid) {
+      this.toast.show('Consultation room not ready yet.', 'info');
+      return;
+    }
+    await this.router.navigate(['/consult/room', rid]);
   }
 
   async cancelBooking(booking: ConsultationBooking): Promise<void> {

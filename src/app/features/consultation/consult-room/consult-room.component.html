@@ -1,0 +1,112 @@
+<div class="consultation-room glass-container">
+  
+  <!-- Loading State -->
+  <div class="loading-overlay" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Preparing secure medical room...</p>
+  </div>
+
+  <!-- Waiting Screen -->
+  <div class="waiting-screen glass-card" *ngIf="!loading && !otherJoined">
+    <div class="waiting-content">
+      <div class="pulse-icon"><i class="fas fa-user-md"></i></div>
+      <h2>Waiting for the other participant...</h2>
+      <p>The session will start as soon as they join.</p>
+      <div class="timer">Elapsed: {{ timerDisplay }}</div>
+    </div>
+  </div>
+
+  <!-- Main Room -->
+  <div class="room-container" *ngIf="!loading && otherJoined">
+    
+    <!-- Top Header -->
+    <header class="room-header">
+      <div class="session-info">
+        <span class="badge" [class.badge-active]="status === 'connected'">
+          {{ status === 'connected' ? 'LIVE' : 'CONNECTING...' }}
+        </span>
+        <span class="timer"><i class="far fa-clock"></i> {{ timerDisplay }} / 30:00</span>
+        <span class="online-limit-timer" *ngIf="isDoctor" [class.text-warning]="onlineMinutesUsed > 100" [class.text-danger]="onlineMinutesUsed >= 115">
+          <i class="fas fa-user-clock"></i> Daily Online: {{ onlineMinutesUsed.toFixed(0) }}/120m
+        </span>
+      </div>
+      <div class="actions">
+        <button class="btn btn-danger btn-sm" (click)="endSession()">
+          <i class="fas fa-phone-slash"></i> End Session
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area: Video/Audio or Chat -->
+    <main class="room-main">
+      
+      <!-- Video/Audio Display -->
+      <div class="media-area" [class.hidden]="activeTab === 'chat'">
+        <div class="video-grid">
+          <!-- Remote Video -->
+          <div class="remote-video-container">
+            <video #remoteVideo autoplay playsinline></video>
+            <div class="no-video" *ngIf="status !== 'connected'">
+              <i class="fas fa-video-slash"></i>
+              <p>Reconnecting...</p>
+            </div>
+            <div class="participant-label">Doctor / Patient</div>
+          </div>
+          
+          <!-- Local Video -->
+          <div class="local-video-container" cdkDrag>
+            <video #localVideo autoplay playsinline muted></video>
+            <div class="participant-label">Me</div>
+          </div>
+        </div>
+
+        <!-- Media Controls -->
+        <div class="media-controls">
+          <button class="control-btn" [class.active]="isMuted" (click)="toggleMute()" title="Mute/Unmute">
+            <i class="fas" [class.fa-microphone]="!isMuted" [class.fa-microphone-slash]="isMuted"></i>
+          </button>
+          <button class="control-btn" [class.active]="isCameraOff" (click)="toggleCamera()" title="Camera On/Off">
+            <i class="fas" [class.fa-video]="!isCameraOff" [class.fa-video-slash]="isCameraOff"></i>
+          </button>
+          <button class="control-btn end-btn" (click)="endSession()" title="End Call">
+            <i class="fas fa-phone"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Chat Sidebar / Area -->
+      <div class="chat-area" [class.full-width]="activeTab === 'chat'">
+        <div class="chat-messages" #scrollContainer>
+          <div *ngFor="let msg of messages" class="message-wrapper" [class.me]="msg.sender_id === currentUserId" [class.system]="msg.message_type === 'system'">
+            <div class="message-bubble">
+              <div class="msg-header" *ngIf="msg.message_type !== 'system'">
+                <span class="sender">{{ msg.sender_name }}</span>
+                <span class="time">{{ msg.created_at | date:'HH:mm' }}</span>
+              </div>
+              <div class="msg-body">{{ msg.message }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input">
+          <input type="text" [(ngModel)]="newMessage" (keyup.enter)="sendChatMessage()" placeholder="Type a message..." />
+          <button (click)="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bottom Navigation Tabs -->
+    <nav class="room-nav">
+      <button class="nav-tab" [class.active]="activeTab === 'chat'" (click)="activeTab = 'chat'">
+        <i class="fas fa-comments"></i> Chat
+      </button>
+      <button class="nav-tab" [class.active]="activeTab === 'audio'" (click)="startCall(false)">
+        <i class="fas fa-microphone"></i> Audio
+      </button>
+      <button class="nav-tab" [class.active]="activeTab === 'video'" (click)="startCall(true)">
+        <i class="fas fa-video"></i> Video
+      </button>
+    </nav>
+
+  </div>
+</div>

@@ -22,6 +22,24 @@
     </article>
   </section>
 
+  <!-- New: Active Consultations -->
+  <section class="active-consults-section" *ngIf="activeConsultations.length > 0">
+    <h3>Active Sessions</h3>
+    <div class="active-consult-grid">
+      <div class="active-consult-card card" *ngFor="let consult of activeConsultations">
+        <div class="doctor-badge">
+          <img [src]="consult.doctors?.avatar_url || 'assets/default-doctor.png'" alt="Doctor">
+          <div>
+            <strong>Dr. {{ consult.doctors?.name || 'Ayurvedic Consultant' }}</strong>
+            <p>{{ consult.type | titlecase }} Consultation</p>
+          </div>
+        </div>
+        <div class="card-status status-active">LIVE</div>
+        <button class="btn btn-primary" [routerLink]="['/consult/room', consult.room_id]">Join Room</button>
+      </div>
+    </div>
+  </section>
+
   <section class="main-grid">
     <article class="panel card guidance-panel">
       <header class="panel-head">
@@ -215,8 +233,8 @@
   <form class="booking-form" (ngSubmit)="submitBooking()">
     <div class="form-row">
       <label>Doctor</label>
-      <select [(ngModel)]="booking.doctor" name="doctor" required>
-        <option *ngFor="let doctorName of availableDoctors" [value]="doctorName">{{ doctorName }}</option>
+      <select [(ngModel)]="booking.doctorId" name="doctorId" required>
+        <option *ngFor="let doc of availableDoctors" [value]="doc.id">{{ doc.fullName || doc.name }}</option>
       </select>
     </div>
     <div class="form-row">

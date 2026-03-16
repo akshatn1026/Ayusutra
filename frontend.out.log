@@ -1,0 +1,29 @@
+
+> ayustra@0.0.0 start:web
+> ng serve --proxy-config proxy.conf.json
+
+
+Initial chunk files   | Names         |  Raw size
+vendor.js             | vendor        |   3.18 MB | 
+main.js               | main          |   1.39 MB | 
+polyfills.js          | polyfills     | 263.22 kB | 
+styles.css, styles.js | styles        | 157.92 kB | 
+runtime.js            | runtime       |   6.49 kB | 
+
+                      | Initial total |   4.99 MB
+
+Build at: 2026-03-02T17:23:30.121Z - Hash: d4a0d55399f37e28 - Time: 11928ms
+
+** Angular Live Development Server is listening on localhost:4200, open your browser on http://localhost:4200/ **
+
+
+√ Compiled successfully.
+
+Initial chunk files | Names   | Raw size
+runtime.js          | runtime |  6.49 kB | 
+
+4 unchanged chunks
+
+Build at: 2026-03-02T17:23:33.772Z - Hash: 62f771c32f3f56b6 - Time: 3281ms
+
+√ Compiled successfully.

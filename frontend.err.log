@@ -1,0 +1,14 @@
+Node.js version v25.6.0 detected.
+Odd numbered Node.js versions will not enter LTS status and should not be used for production. For more information, please see https://nodejs.org/en/about/previous-releases/.
+- Generating browser application bundles (phase: setup)...
+√ Browser application bundle generation complete.
+
+Warning: C:\Users\Aksha\OneDrive\Attachments\Desktop\ayustra\node_modules\socket.io-parser\build\esm-debug\index.js depends on 'debug'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+
+√ Browser application bundle generation complete.
+(node:8420) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+<e> [webpack-dev-server] [HPM] Error occurred while proxying request localhost:4200/api/auth/login to http://localhost:4000/ [ECONNREFUSED] (https://nodejs.org/api/errors.html#errors_common_system_errors)
+^C^C

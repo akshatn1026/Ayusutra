@@ -73,8 +73,9 @@ export class UserDashboardComponent implements OnInit, OnDestroy {
   showBookingModal = false;
   showConsultNowModal = false;
   isStartingInstant = false;
-  availableDoctors: string[] = [];
-  booking = { doctor: '', date: '', time: '', status: 'Pending' };
+  availableDoctors: any[] = [];
+  activeConsultations: any[] = [];
+  booking = { doctorId: '', date: '', time: '', type: 'scheduled' as 'scheduled' | 'emergency' };
 
   isRequestingEmergency = false;
   private channel: any = null;
@@ -145,42 +146,54 @@ export class UserDashboardComponent implements OnInit, OnDestroy {
     this.showConsultNowModal = false;
   }
 
-  submitBooking(): void {
-    if (!this.patientData) return;
+  async submitBooking(): Promise<void> {
+    if (!this.patientData || !this.currentUser) return;
     const appointment = { ...this.booking };
-    if (!appointment.doctor || !appointment.date || !appointment.time) {
+    if (!appointment.doctorId || !appointment.date || !appointment.time) {
       this.toast.show('Please complete doctor, date, and time.', 'error');
       return;
     }
 
-    const idx = this.authService.addAppointmentAndReturnIndex(this.patientData.id, appointment as any);
-    if (idx === null) {
-      this.toast.show('Unable to create appointment.', 'error');
-      return;
-    }
+    try {
+      const scheduledTime = `${appointment.date}T${appointment.time}:00`;
+      await this.consultationBookingService.book({
+        doctorId: appointment.doctorId,
+        scheduledTime: scheduledTime,
+        mode: 'chat', // Default for now
+        duration: 30,
+        issueContext: 'Standard Consultation'
+      });
 
-    this.refreshUserData();
-    this.booking = { doctor: this.availableDoctors[0] || '', date: '', time: '', status: 'Pending' };
-    this.showBookingModal = false;
-    this.toast.show('Appointment scheduled.', 'success', 6000, 'Undo', () => {
-      if (!this.patientData) return;
-      this.authService.removeAppointment(this.patientData.id, idx);
       this.refreshUserData();
-    });
+      this.booking = { doctorId: this.availableDoctors[0]?.id || '', date: '', time: '', type: 'scheduled' };
+      this.showBookingModal = false;
+      this.toast.show('Appointment scheduled.', 'success');
+    } catch (e: any) {
+      this.toast.show('Failed to schedule appointment: ' + (e.error?.error || e.message), 'error');
+    }
   }
 
   private setupRealtimeListeners(): void {
     const user = this.authService.getCurrentUser();
     if (!user) return;
+
     this.channel = this.supabaseService.client
-      .channel('doctor_alerts')
-      .on('broadcast', { event: `emergency-accepted-${user.id}` }, (payload: any) => {
-        const data = payload.payload;
-        this.handleAcceptedRequest(data, 'Emergency');
-      })
-      .on('broadcast', { event: `consult-accepted-${user.id}` }, (payload: any) => {
-        const data = payload.payload;
-        this.handleAcceptedRequest(data, 'Consultation');
+      .channel(`patient_realtime_${user.id}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'consultations',
+        filter: `patient_id=eq.${user.id}`
+      }, (payload: any) => {
+        const consult = payload.new;
+        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+          if (consult.status === 'active' || consult.status === 'confirmed') {
+             this.refreshUserData();
+             if (consult.status === 'active' && payload.old?.status !== 'active') {
+               this.toast.show('Consultation is now active! Join the room.', 'success');
+             }
+          }
+        }
       })
       .subscribe();
   }
@@ -195,7 +208,7 @@ export class UserDashboardComponent implements OnInit, OnDestroy {
       doctorId: data.doctorId,
       initiationType: 'instant'
     });
-    this.router.navigate(['/consult/session', data.sessionId]);
+    this.router.navigate(['/consult/room', data.room_id || data.sessionId]);
   }
 
   private cleanupRealtime(): void {
@@ -209,29 +222,26 @@ export class UserDashboardComponent implements OnInit, OnDestroy {
     const user = this.currentUser;
     if (!user) return;
     
-    if (!this.channel) {
-      this.setupRealtimeListeners();
-    }
-
     this.isStartingInstant = true;
-    this.toast.show('Finding an available doctor...', 'info');
+    this.toast.show('Connecting to an available doctor...', 'info');
 
-    this.channel.send({
-      type: 'broadcast',
-      event: 'consult-request',
-      payload: {
-        patientId: user.id,
-        patientName: user.fullName || 'Patient',
-        consultationType: mode
+    this.http.post<any>('/api/consultations/emergency', { patientId: user.id }).subscribe({
+      next: (data) => {
+        if (data.room_id) {
+          this.toast.show('Doctor found! Joining room...', 'success');
+          this.closeConsultNow();
+          this.router.navigate(['/consult/room', data.room_id]);
+        } else {
+          this.toast.show(data.error || 'No doctors available now. You are in the queue.', 'info');
+        }
+      },
+      error: (e) => {
+        this.toast.show('Error starting consultation: ' + (e.error?.error || e.message), 'error');
+      },
+      complete: () => {
+        this.isStartingInstant = false;
       }
     });
-
-    setTimeout(() => {
-      if (this.isStartingInstant) {
-         this.isStartingInstant = false;
-         this.toast.show('No doctors available at the moment. Please try again or book a regular appointment.', 'error');
-      }
-    }, 45000);
   }
 
   runAction(action: QuickAction): void {
@@ -269,8 +279,15 @@ export class UserDashboardComponent implements OnInit, OnDestroy {
       }
 
       this.currentUser = user;
-      this.availableDoctors = this.authService.getDoctors().map((d) => d.fullName).filter(Boolean);
-      this.booking.doctor = this.availableDoctors[0] || '';
+      
+      // Fetch real doctors from the backend
+      this.consultationBookingService.getDoctors('chat').then(docs => {
+        this.availableDoctors = docs;
+        if (this.availableDoctors.length > 0 && !this.booking.doctorId) {
+          this.booking.doctorId = this.availableDoctors[0].id;
+        }
+      });
+
       this.resolveLastLogin(user.id);
       this.nowLabel = new Date().toLocaleString(undefined, {
         weekday: 'short',
@@ -306,8 +323,16 @@ export class UserDashboardComponent implements OnInit, OnDestroy {
     if (Date.now() - this.lastTimelineLoadedAt > 45 * 1000) {
       await this.loadTimelineActivity(patient);
     }
-    this.quickActions = this.buildQuickActions();
     await this.loadBookingSnapshot();
+    const { data: activeConsults } = await this.supabaseService.client
+      .from('consultations')
+      .select('*, doctors(*)')
+      .eq('patient_id', user.id)
+      .or('status.eq.active,status.eq.confirmed');
+    
+    if (activeConsults) {
+      this.activeConsultations = activeConsults;
+    }
     if (Date.now() - this.lastSymptomsLoadedAt > 60 * 1000) {
       void this.loadSymptomLogs();
     }
@@ -668,32 +693,8 @@ export class UserDashboardComponent implements OnInit, OnDestroy {
   }
 
   requestEmergencyConsult(): void {
-    const user = this.authService.getCurrentUser();
-    if (!user) return;
-    
-    if (!this.channel) {
-      this.setupRealtimeListeners();
-    }
-    
     const confirm = window.confirm("Are you sure you want to request an emergency consultation? Online doctors will be alerted instantly.");
     if (!confirm) return;
-
-    this.isRequestingEmergency = true;
-    this.channel.send({
-      type: 'broadcast',
-      event: 'emergency-request',
-      payload: {
-        patientId: user.id,
-        patientName: user.fullName || 'Patient'
-      }
-    });
-    this.toast.show('Emergency request broadcasted. Waiting for an available doctor...', 'success');
-
-    setTimeout(() => {
-      if (this.isRequestingEmergency) {
-         this.isRequestingEmergency = false;
-         this.toast.show('No doctors available at the moment. Please try again or book a regular appointment.', 'error');
-      }
-    }, 30000);
+    this.startInstantConsultation('chat');
   }
 }
