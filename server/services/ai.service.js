@@ -52,8 +52,41 @@ async function getAIResponse(userQuery) {
         response: `**${h.name}**\n\n${h.description}\n\n**Benefits:** ${benefitsText}\n\n**Dosage:** ${h.dosage || 'Consult an Ayurvedic practitioner'}\n\n**Side Effects:** ${h.side_effects || 'None known at normal doses'}`
       };
     }
+
+    // FREE FALLBACK 1.1: Supabase medicines table
+    const { data: medData } = await supabase
+      .from('medicines')
+      .select('name, description, benefits, dosage')
+      .ilike('name', `%${searchTerm}%`)
+      .limit(1);
+
+    if (medData && medData.length > 0) {
+      const m = medData[0];
+      const benefitsText = Array.isArray(m.benefits)
+        ? m.benefits.join(', ')
+        : m.benefits || 'See description';
+      return {
+        source: 'database',
+        response: `**${m.name}**\n\n${m.description}\n\n**Benefits:** ${benefitsText}\n\n**Dosage:** ${m.dosage || 'Consult an Ayurvedic practitioner'}`
+      };
+    }
+
+    // FREE FALLBACK 1.2: Supabase encyclopedia table
+    const { data: encData } = await supabase
+      .from('encyclopedia')
+      .select('title, content')
+      .ilike('title', `%${searchTerm}%`)
+      .limit(1);
+
+    if (encData && encData.length > 0) {
+      const e = encData[0];
+      return {
+        source: 'database',
+        response: `**${e.title}**\n\n${e.content}`
+      };
+    }
   } catch (err) {
-    console.warn('Supabase herb lookup failed:', err.message);
+    console.warn('Supabase database lookup failed:', err.message);
   }
 
   // FREE FALLBACK 2: Wikipedia REST API

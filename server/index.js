@@ -45,11 +45,6 @@ const config = {
   rateLimitWindowMs: 60 * 1000,
   rateLimitMaxRequests: process.env.RATE_LIMIT_MAX ? Number(process.env.RATE_LIMIT_MAX) : 100,
 
-  // Email
-  emailUser: process.env.EMAIL_USER || '',
-  emailPass: process.env.EMAIL_PASS || '',
-  mailFrom: process.env.MAIL_FROM || 'Ayusutra <no-reply@ayusutra.local>',
-
   // OpenAI (for AI Health Analyzer)
   openaiApiKey: process.env.OPENAI_API_KEY || '',
 
@@ -62,9 +57,6 @@ const config = {
 function validateConfig() {
   const warnings = [];
 
-  if (!config.emailUser || !config.emailPass) {
-    warnings.push('⚠️  Email credentials not configured. OTP delivery will fail.');
-  }
   if (config.corsOrigins.includes('*') && config.nodeEnv === 'production') {
     warnings.push('⚠️  CORS is set to allow all origins. Set CORS_ORIGINS in .env for production.');
   }

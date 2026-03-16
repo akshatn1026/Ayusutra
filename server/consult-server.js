@@ -4,13 +4,14 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
 const multer = require('multer');
 const pdfParse = require('pdf-parse');
 const Tesseract = require('tesseract.js');
 const { supabase } = require('./lib/supabase');
 const authMiddleware = require('./middleware/auth.middleware');
 const authRequired = authMiddleware;
+
+const consultationRoutes = require('./routes/consultation.routes');
 
 function loadEnvFile() {
   const envPath = path.join(__dirname, '..', '.env');
@@ -34,6 +35,7 @@ const PORT = process.env.CONSULT_PORT ? Number(process.env.CONSULT_PORT) : 4000;
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use('/api/consultations', consultationRoutes);
 
 // Auth /me — top-level route for fast token validation
 app.get(['/api/auth/me', '/auth/me'], async (req, res) => {
@@ -87,7 +89,6 @@ const ALLOWED_MEDICAL_REPORT_MIME_TYPES = new Set(['application/pdf', 'image/jpe
 const ALLOWED_MEDICAL_REPORT_EXTENSIONS = new Set(['.pdf', '.jpg', '.jpeg', '.png']);
 const MEDICAL_ANALYSIS_DISCLAIMER =
   'This AI explanation is for educational purposes only and should not replace professional medical advice.';
-let mailTransporter = null;
 
 fs.mkdirSync(MEDICAL_REPORT_UPLOAD_DIR, { recursive: true });
 
@@ -138,33 +139,6 @@ function generateOtpCode() {
 
 function cleanupExpiredAuthData() {
   // SQLite cleanup logic removed as we move to Supabase
-}
-
-async function buildMailer() {
-  const emailUser = String(process.env.EMAIL_USER || '').trim();
-  const emailPass = String(process.env.EMAIL_PASS || '').trim();
-  if (!emailUser || !emailPass) {
-    throw new Error('Email delivery is not configured. Set EMAIL_USER and EMAIL_PASS for Gmail SMTP.');
-  }
-  return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: { user: emailUser, pass: emailPass }
-  });
-}
-
-
-
-async function sendConsultationEmail(email, subject, message) {
-  if (!email) return;
-  if (!mailTransporter) mailTransporter = await buildMailer();
-  await mailTransporter.sendMail({
-    from: process.env.MAIL_FROM || 'Ayusutra <no-reply@ayusutra.local>',
-    to: email,
-    subject,
-    text: message
-  });
 }
 
 async function sendConsultationSms(phone, message) {
@@ -3463,16 +3437,6 @@ app.post('/api/consultation/book', authRequired, async (req, res) => {
     const doctorEmailUser = doctor.userId ? await getUserById(doctor.userId) : null;
     const bookingTimeLabel = new Date(normalizedSlot).toUTCString();
     
-    sendConsultationEmail(
-      patient?.email || '',
-      'Ayustura Consultation Booking Confirmed',
-      `Your consultation is scheduled with ${doctor.name} on ${bookingTimeLabel} via ${mode}.`
-    ).catch(() => undefined);
-    sendConsultationEmail(
-      doctorEmailUser?.email || '',
-      'New Ayustura Consultation Assigned',
-      `You have a consultation scheduled on ${bookingTimeLabel} via ${mode}.`
-    ).catch(() => undefined);
     sendConsultationSms(
       patient?.phone || '',
       `Ayustura booking confirmed: ${bookingTimeLabel}, ${mode} consultation with ${doctor.name}.`
@@ -4269,8 +4233,8 @@ app.get('/api/herbs/suggestions', async (req, res) => {
     // Supabase ilike search
     const { data, error } = await supabase
       .from('herbs')
-      .select('herb_name, scientific_name, image_url')
-      .or(`herb_name.ilike.${q}%,scientific_name.ilike.${q}%,other_names.ilike.%${q}%`)
+      .select('herb_name:name, scientific_name, image_url, other_names:hindi_name')
+      .or(`name.ilike.${q}%,scientific_name.ilike.${q}%,hindi_name.ilike.%${q}%`)
       .limit(8);
 
     if (error) throw error;
@@ -4290,8 +4254,8 @@ app.get('/api/herbs/search', async (req, res) => {
     // Supabase text search or multiple ilike
     const { data, error } = await supabase
       .from('herbs')
-      .select('*')
-      .or(`herb_name.ilike.%${q}%,scientific_name.ilike.%${q}%,other_names.ilike.%${q}%,diseases_treated.cs.{${q}},ayurvedic_uses.ilike.%${q}%,benefits.ilike.%${q}%`)
+      .select('*, herb_name:name, other_names:hindi_name')
+      .or(`name.ilike.%${q}%,scientific_name.ilike.%${q}%,hindi_name.ilike.%${q}%,uses.cs.{${q}},benefits.ilike.%${q}%`)
       .limit(20);
 
     if (error) throw error;
@@ -4310,8 +4274,8 @@ app.get('/api/herbs/:herbName', async (req, res) => {
     // Check Supabase "Cache" (Main Storage)
     const { data: herb, error } = await supabase
       .from('herbs')
-      .select('*')
-      .or(`herb_name.ilike.${name},scientific_name.ilike.${name}`)
+      .select('*, herb_name:name, other_names:hindi_name')
+      .or(`name.ilike.${name},scientific_name.ilike.${name}`)
       .maybeSingle();
 
     if (herb) return res.json({ success: true, data: herb, source: 'supabase' });
@@ -4433,6 +4397,24 @@ Return ONLY a valid JSON object with the exact keys below. If a field is unknown
 });
 
 // ═══════════════════════════════════════════════════════
+// AI SERVICE ROUTE
+// ═══════════════════════════════════════════════════════
+const { getAIResponse } = require('./services/ai.service');
+
+app.post(['/api/ai/ask', '/ai/ask'], async (req, res) => {
+  try {
+    const { query } = req.body;
+    if (!query) return res.status(400).json({ error: 'Query is required.' });
+
+    const aiResult = await getAIResponse(query);
+    res.json(aiResult);
+  } catch (err) {
+    console.error('AI ask error:', err);
+    res.status(500).json({ error: 'Failed to retrieve AI response', details: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════════════════
 // ENCYCLOPEDIA ROUTES
 // ═══════════════════════════════════════════════════════
 const { searchEncyclopedia, getEntry } = require('./services/encyclopedia.service');
@@ -4502,8 +4484,8 @@ app.get(['/api/search', '/search'], async (req, res) => {
       searches.push(
         supabase
           .from('encyclopedia')
-          .select('id,name,category,description,image_url')
-          .or(`name.ilike.%${q}%,description.ilike.%${q}%`)
+          .select('id,title,content')
+          .or(`title.ilike.%${q}%,content.ilike.%${q}%`)
           .limit(6)
           .then(({ data }) => { results.encyclopedia = data || []; })
       );
@@ -4551,7 +4533,6 @@ app.get(['/api/search', '/search'], async (req, res) => {
 // ═══════════════════════════════════════════════════════
 // AI HEALTH ASSISTANT ENDPOINT (free fallback)
 // ═══════════════════════════════════════════════════════
-const { getAIResponse } = require('./services/ai.service');
 
 app.post(['/api/ai/chat', '/ai/chat'], async (req, res) => {
   try {
