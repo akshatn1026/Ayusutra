@@ -33,10 +33,14 @@ loadEnvFile();
 const PORT = process.env.CONSULT_PORT ? Number(process.env.CONSULT_PORT) : 4000;
 
 const app = express();
+app.use(cors({
+  origin: 'https://ayusutra-frontend.onrender.com',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 app.get('/', (_req, res) => {
   res.status(200).json({ status: 'ok', message: 'Ayusutra backend is running' });
 });
-app.use(cors());
 app.use(express.json());
 app.use('/api/consultations', consultationRoutes);
 
