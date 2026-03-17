@@ -193,7 +193,6 @@ export interface TherapyRecord {
   postTherapyCare: string[];
   duration: string;
   intensityLevel: 'low' | 'moderate' | 'high';
-  // backward compatibility with existing templates
   eligibility?: string[];
   preGuidance?: string[];
   postGuidance?: string[];

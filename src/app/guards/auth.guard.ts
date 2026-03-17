@@ -34,11 +34,9 @@ export class AuthGuard implements CanActivate {
     if (!expectedRole && state.url.startsWith('/doctor/')) expectedRole = 'doctor';
 
     if (!isAuth) {
-      // Not authenticated -> redirect to login and preserve returnUrl
       return this.router.createUrlTree(['/login'], { queryParams: { redirected: 'true', returnUrl: state.url } });
     }
 
-    // If route expects a specific role, check current user's role
     if (expectedRole) {
       const user = this.authService.getCurrentUser();
       if (!user || user.role !== expectedRole) {

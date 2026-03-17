@@ -4,11 +4,6 @@ const { supabase } = require('../lib/supabase');
 const authMiddleware = require('../middleware/auth.middleware');
 const crypto = require('crypto');
 
-// ═══════════════════════════════════════════════════════
-// PUBLIC ROUTES
-// ═══════════════════════════════════════════════════════
-
-// GET /api/consultations/doctors - list all doctors with availability
 router.get('/doctors', async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -24,7 +19,6 @@ router.get('/doctors', async (req, res) => {
   }
 });
 
-// GET /api/consultations/doctors/:id - doctor profile
 router.get('/doctors/:id', async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -41,7 +35,6 @@ router.get('/doctors/:id', async (req, res) => {
   }
 });
 
-// GET /api/consultations/available-slots/:doctorId - available slots next 7 days
 router.get('/available-slots/:doctorId', async (req, res) => {
   try {
     const { doctorId } = req.params;
@@ -69,24 +62,17 @@ router.get('/available-slots/:doctorId', async (req, res) => {
   }
 });
 
-// ═══════════════════════════════════════════════════════
-// PROTECTED ROUTES (AUTH REQUIRED)
-// ═══════════════════════════════════════════════════════
 
-// POST /api/consultations/book - book a slot
 router.post('/book', authMiddleware, async (req, res) => {
   try {
     const { doctor_id, slot_id, type, mode, patient_notes, issueContext, scheduledTime } = req.body;
     const patient_id = req.user.id;
 
-    // Support both sets of keys (service vs direct)
     const final_doctor_id = doctor_id || req.body.doctorId;
     const final_type = type || mode || 'chat';
     const final_notes = patient_notes || issueContext || '';
 
-    // If it's a slot-based booking
     if (slot_id) {
-      // 1. Check if slot is still available
       const { data: slot, error: slotError } = await supabase
         .from('consultation_slots')
         .select('*')
@@ -97,11 +83,9 @@ router.post('/book', authMiddleware, async (req, res) => {
         return res.status(400).json({ error: 'Slot is no longer available' });
       }
 
-      // 2. Mark slot as booked
       await supabase.from('consultation_slots').update({ is_booked: true }).eq('id', slot_id);
     }
 
-    // 3. Create consultation
     const room_id = `room_${crypto.randomUUID()}`;
     const { data: consultation, error: consultError } = await supabase
       .from('consultations')
@@ -123,7 +107,7 @@ router.post('/book', authMiddleware, async (req, res) => {
     res.json({
       success: true,
       consultation_id: consultation.id,
-      booking: consultation, // Match service expectation if needed
+      booking: consultation, 
       room_id,
       join_url: `/consult/room/${room_id}`
     });
@@ -134,28 +118,24 @@ router.post('/book', authMiddleware, async (req, res) => {
   }
 });
 
-// POST /api/consultations/emergency - start emergency session
 router.post('/emergency', authMiddleware, async (req, res) => {
   try {
     const patient_id = req.user.id;
 
-    // 1. Find the first doctor who is available now and within their 2-hour limit
     const { data: doctor, error: docError } = await supabase
       .from('doctors')
       .select('*')
       .eq('is_available_now', true)
-      .lt('online_minutes_today', 120) // Must have remaining time
+      .lt('online_minutes_today', 120) 
       .limit(1)
       .maybeSingle();
 
     if (docError) throw docError;
 
     if (!doctor) {
-      // TODO: Add to queue logic if requested, for now return "none available"
       return res.status(404).json({ error: 'No doctors currently available for emergency. You have been added to the queue.', inQueue: true });
     }
 
-    // 2. Create instant active consultation
     const room_id = `room_${crypto.randomUUID()}`;
     const { data: consultation, error: consultError } = await supabase
       .from('consultations')
@@ -172,7 +152,6 @@ router.post('/emergency', authMiddleware, async (req, res) => {
 
     if (consultError) throw consultError;
 
-    // 3. Set doctor is_available_now = false
     await supabase.from('doctors').update({ is_available_now: false }).eq('id', doctor.id);
 
     res.json({
@@ -188,13 +167,12 @@ router.post('/emergency', authMiddleware, async (req, res) => {
   }
 });
 
-// GET /api/consultations/my-bookings - patient's or doctor's consultations
 router.get('/my-bookings', authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id;
     const { data, error } = await supabase
       .from('consultations')
-      .select('*, doctor:doctors(*), patient:users(name, email)') // Note: assuming public.users exists for patient info
+      .select('*, doctor:doctors(*), patient:users(name, email)') 
       .or(`patient_id.eq.${userId},doctor_id.eq.${userId}`)
       .order('created_at', { ascending: false });
 
@@ -215,7 +193,6 @@ router.get('/my-bookings', authMiddleware, async (req, res) => {
   }
 });
 
-// GET /api/consultations/:id - single consultation detail
 router.get('/:id', authMiddleware, async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -232,7 +209,6 @@ router.get('/:id', authMiddleware, async (req, res) => {
   }
 });
 
-// POST /api/consultations/:id/end - end session
 router.post('/:id/end', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
@@ -261,9 +237,7 @@ router.post('/:id/end', authMiddleware, async (req, res) => {
 
     if (updateError) throw updateError;
 
-    // Doctor becomes available again if they were in an emergency session
-    // (Actual logic might depend on their toggle, but for now we reset)
-    // Actually, we should probably check their availability preference.
+   
     
     res.json({ success: true, duration });
   } catch (err) {
@@ -271,20 +245,12 @@ router.post('/:id/end', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'Failed to end session' });
   }
 });
-
-// ═══════════════════════════════════════════════════════
-// DOCTOR ONLY ROUTES
-// ═══════════════════════════════════════════════════════
-
-// POST /api/consultations/generate-slots
 router.post('/generate-slots', authMiddleware, async (req, res) => {
   try {
     const doctor_id = req.user.id;
-    // Check if user is actually a doctor
     const { data: doctor } = await supabase.from('doctors').select('id').eq('id', doctor_id).single();
     if (!doctor) return res.status(403).json({ error: 'Only doctors can generate slots' });
 
-    // Fetch availability
     const { data: availability } = await supabase
       .from('doctor_availability')
       .select('*')
@@ -308,8 +274,7 @@ router.post('/generate-slots', authMiddleware, async (req, res) => {
       
       for (const av of dayAvailability) {
         let current = av.start_time;
-        // Simple loop to generate 30-min slots
-        // Note: In production we'd use a more robust time library
+        
         const [startH, startM] = av.start_time.split(':').map(Number);
         const [endH, endM] = av.end_time.split(':').map(Number);
         
@@ -334,7 +299,6 @@ router.post('/generate-slots', authMiddleware, async (req, res) => {
       }
     }
 
-    // Upsert to avoid duplicates if re-run
     const { error } = await supabase
       .from('consultation_slots')
       .upsert(slotsToInsert, { onConflict: 'doctor_id, date, start_time' });
@@ -348,7 +312,6 @@ router.post('/generate-slots', authMiddleware, async (req, res) => {
   }
 });
 
-// PUT /api/doctors/availability - update toggle
 router.put('/availability', authMiddleware, async (req, res) => {
   try {
     const { is_available_now } = req.body;

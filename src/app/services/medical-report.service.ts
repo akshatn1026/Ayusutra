@@ -96,7 +96,7 @@ export class MedicalReportService {
         });
       })
     );
-  }  // ← this closing brace was missing in your code
+  }  
 
   async listReports(): Promise<MedicalReportRecord[]> {
     const response = await firstValueFrom(

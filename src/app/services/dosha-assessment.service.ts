@@ -50,7 +50,6 @@ export class DoshaAssessmentService {
   private readonly API = '/api/dosha';
 
   constructor(private http: HttpClient) {}
-  // headers() removed; handled by interceptor
 
   async getConfig(): Promise<DoshaConfigResponse> {
     return firstValueFrom(this.http.get<DoshaConfigResponse>(`${this.API}/config`));

@@ -81,7 +81,7 @@ export interface DoshaAssessmentRecord {
   validTill: string;
   selfReported: boolean;
   answers: Record<string, DoshaType>;
-  scores: DoshaScores; // backward-compat mirror of prakriti.scores
+  scores: DoshaScores; 
   prakriti: {
     primary: DoshaType;
     secondary?: DoshaType;
@@ -96,7 +96,6 @@ export interface DoshaAssessmentRecord {
     symptoms: DoshaSymptomInput[];
     imbalanceFlag: boolean;
   };
-  // backward-compatible fields used in existing pages/services
   prakritiLabel?: DoshaType;
   vikritiLabel?: DoshaType | 'Balanced';
   primaryDosha: DoshaType;
@@ -172,14 +171,11 @@ export class AuthService {
     this.loadAuthState();
   }
 
-  // expose persistence for external callers (persist current in-memory patientsData)
   persistPatients(): void {
     this.savePatientsData();
   }
 
   private loadAuthState(): void {
-    // We rely on supabaseService's internal onAuthStateChange, 
-    // but we can still seed from local storage for faster initial load of enriched profile if available.
     const userData = localStorage.getItem(this.USER_KEY);
     if (userData) {
       try {
@@ -187,7 +183,6 @@ export class AuthService {
         this.currentUserSubject.next(parsed);
         this.ensureUserProfileExists(parsed);
       } catch {
-        // noop
       }
     }
     this.sessionRestorePromise = this.restoreSessionFromToken();
@@ -242,7 +237,6 @@ export class AuthService {
   }
 
   private authHeaders(): HttpHeaders {
-    // Interceptor will handle the Authorization header
     return new HttpHeaders();
   }
 
@@ -257,7 +251,6 @@ export class AuthService {
         return false;
       }
       
-      // Sync with backend to get extra fields (name, role, etc.)
       const response = await firstValueFrom(
         this.http.get<{ user: { id: string; name: string; phone?: string; email?: string; role: 'patient' | 'doctor' } }>(
           `${this.AUTH_API_BASE}/me`
@@ -528,7 +521,6 @@ export class AuthService {
     return { success: true, record };
   }
 
-  // backward-compatible entry point
   saveDoshaAssessment(patientId: string, answers: Record<string, DoshaType>): DoshaAssessmentRecord | null {
     const fallbackToken = `legacy_${patientId}_${Date.now()}`;
     const result = this.saveDoshaAssessmentAtomic({
@@ -603,7 +595,6 @@ export class AuthService {
     try {
       localStorage.setItem(this.DOSHA_SUBMIT_TOKENS_KEY, JSON.stringify(map));
     } catch {
-      // noop
     }
   }
 
@@ -705,7 +696,6 @@ export class AuthService {
           doshaAssessments: (p.doshaAssessments || []).map((r) => this.normalizeAssessmentRecord(r))
         }));
       } catch {
-        // ignore and keep defaults
       }
     }
   }
@@ -728,12 +718,10 @@ export class AuthService {
     return byAppointment.length > 0 ? byAppointment : [...this.patientsData];
   }
 
-  // Return list of doctors (public view)
   getDoctors(): User[] {
     return [...this.doctorsDirectory];
   }
 
-  // Update current user basic profile and persist to localStorage
   updateCurrentUser(user: Partial<User>): boolean {
     const current = this.getCurrentUser();
     if (!current) return false;
@@ -758,7 +746,6 @@ export class AuthService {
     return true;
   }
 
-  // Update patient data (name, wellnessMessage, etc.) and persist
   updatePatientData(updatedData: PatientData): boolean {
     const idx = this.patientsData.findIndex(p => p.id === updatedData.id);
     if (idx === -1) return false;
@@ -774,8 +761,6 @@ export class AuthService {
       const { data, error } = authResult;
       if (error) throw error;
       
-      // IMPORTANT: We must pass the token manually here because the interceptor
-      // calls getSession() which may not have persisted the new session yet.
       const accessToken = data.session?.access_token;
       if (!accessToken) throw new Error('Login succeeded but no access token received');
 
@@ -815,8 +800,6 @@ export class AuthService {
     consultationFee?: number;
   }): Promise<{ success: boolean; error?: string; message?: string }> {
     try {
-      // We still use our backend signup proxy to ensure profile is created in 'users' table 
-      // alongside Supabase Auth creation.
       const response = await firstValueFrom(
         this.http.post<{ success: boolean; message: string }>(`${this.AUTH_API_BASE}/signup`, {
           name: String(input.fullName || '').trim(),

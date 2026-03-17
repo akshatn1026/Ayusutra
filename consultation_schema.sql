@@ -1,6 +1,3 @@
--- Consultation System Overhaul Schema
--- Run this in your Supabase Dashboard SQL Editor
-
 CREATE TABLE IF NOT EXISTS doctors (
   id uuid primary key references auth.users(id),
   name text not null,
@@ -20,7 +17,7 @@ CREATE TABLE IF NOT EXISTS doctors (
 CREATE TABLE IF NOT EXISTS doctor_availability (
   id uuid primary key default gen_random_uuid(),
   doctor_id uuid references doctors(id) on delete cascade,
-  day_of_week integer, -- 0=Sunday to 6=Saturday
+  day_of_week integer, 
   start_time time not null,
   end_time time not null,
   max_daily_hours integer default 2,
@@ -66,14 +63,12 @@ CREATE TABLE IF NOT EXISTS consultation_messages (
   created_at timestamptz default now()
 );
 
--- Enable RLS
 ALTER TABLE doctors ENABLE ROW LEVEL SECURITY;
 ALTER TABLE doctor_availability ENABLE ROW LEVEL SECURITY;
 ALTER TABLE consultation_slots ENABLE ROW LEVEL SECURITY;
 ALTER TABLE consultations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE consultation_messages ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies
 CREATE POLICY "Public read doctors" ON doctors FOR SELECT USING (true);
 CREATE POLICY "Public read slots" ON consultation_slots FOR SELECT USING (true);
 CREATE POLICY "Public read availability" ON doctor_availability FOR SELECT USING (true);
@@ -84,8 +79,6 @@ CREATE POLICY "Users read consultation messages" ON consultation_messages FOR SE
   EXISTS (SELECT 1 FROM consultations c WHERE c.id = consultation_id AND (c.patient_id = auth.uid() OR c.doctor_id = auth.uid()))
 );
 CREATE POLICY "Users send messages" ON consultation_messages FOR INSERT WITH CHECK (auth.uid() = sender_id);
-
--- Enable Realtime on all consultation tables
 ALTER PUBLICATION supabase_realtime ADD TABLE consultations;
 ALTER PUBLICATION supabase_realtime ADD TABLE consultation_messages;
 ALTER PUBLICATION supabase_realtime ADD TABLE consultation_slots;

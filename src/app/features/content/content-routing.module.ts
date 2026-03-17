@@ -17,7 +17,6 @@ const routes: Routes = [
   { path: 'features', component: FeaturesComponent },
   { path: 'blog', component: BlogListComponent },
   { path: 'blog/:id', component: BlogDetailComponent },
-  // Legacy top-level redirects to new module locations
   { path: 'profile', redirectTo: '/dashboard/profile', pathMatch: 'full' },
   { path: 'notifications', redirectTo: '/dashboard/notifications', pathMatch: 'full' },
   { path: 'cart', redirectTo: '/pharmacy/cart', pathMatch: 'full' },

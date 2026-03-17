@@ -4,7 +4,6 @@ import { RouterModule, Routes } from '@angular/router';
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
 
-  // Legacy redirects
   { path: 'user-dashboard', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'patient/dashboard', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'doctor-dashboard', redirectTo: 'dashboard/doctor', pathMatch: 'full' },
@@ -12,7 +11,6 @@ const routes: Routes = [
   { path: 'shop', redirectTo: 'home', pathMatch: 'full' },
   { path: 'discounts', redirectTo: 'home', pathMatch: 'full' },
 
-  // Prefixed feature modules (clean separation)
   {
     path: 'dashboard',
     loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule)
@@ -30,7 +28,6 @@ const routes: Routes = [
     loadChildren: () => import('./features/pharmacy/pharmacy.module').then(m => m.PharmacyModule)
   },
 
-  // Root-level feature modules (routes defined within each module)
   {
     path: '',
     loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule)
@@ -44,7 +41,6 @@ const routes: Routes = [
     loadChildren: () => import('./features/content/content.module').then(m => m.ContentModule)
   },
 
-  // Wildcard
   { path: '**', redirectTo: 'home' }
 ];
 

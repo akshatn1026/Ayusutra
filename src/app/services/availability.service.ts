@@ -79,7 +79,6 @@ export class AvailabilityService implements OnDestroy {
         this.toast.show('Failed to go online', 'error');
       }
     } else {
-      // Going Offline
       await this.syncWithDb();
       const { error } = await this.supabase.client
         .from('doctors')

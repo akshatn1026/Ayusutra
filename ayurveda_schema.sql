@@ -1,7 +1,4 @@
--- Ayurveda Database Schema
--- Run this in your Supabase Dashboard SQL Editor
 
--- 1. Herbs Table
 CREATE TABLE IF NOT EXISTS public.herbs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT UNIQUE NOT NULL,
@@ -18,7 +15,6 @@ CREATE TABLE IF NOT EXISTS public.herbs (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- 2. Medicines Table
 CREATE TABLE IF NOT EXISTS public.medicines (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT UNIQUE NOT NULL,
@@ -33,7 +29,6 @@ CREATE TABLE IF NOT EXISTS public.medicines (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- 3. Encyclopedia Table
 CREATE TABLE IF NOT EXISTS public.encyclopedia (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT UNIQUE NOT NULL,
@@ -41,7 +36,6 @@ CREATE TABLE IF NOT EXISTS public.encyclopedia (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- Indexes for Universal Search Performance
 CREATE INDEX IF NOT EXISTS herbs_name_idx ON public.herbs (name);
 CREATE INDEX IF NOT EXISTS medicines_name_idx ON public.medicines (name);
 CREATE INDEX IF NOT EXISTS encyclopedia_title_idx ON public.encyclopedia (title);

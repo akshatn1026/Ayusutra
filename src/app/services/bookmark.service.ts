@@ -41,7 +41,6 @@ export class BookmarkService {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.cache));
     } catch {
-      // noop
     }
   }
 }
