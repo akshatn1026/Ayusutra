@@ -76,8 +76,17 @@ export class MedicalReportService {
     const filePath = `user_reports/${Date.now()}_${file.name}`;
 
     return from(this.supabase.client.storage.from(bucket).upload(filePath, file)).pipe(
-      switchMap(({ data, error }: { data: any, error: any }) => {
-        if (error) throw error;
+      switchMap((result: { data: any; error: any } | null | undefined) => {
+        if (!result) {
+          throw new Error('Storage returned no response. Check if the bucket exists.');
+        }
+        const { data, error } = result;
+        if (error) {
+          throw new Error(error.message || 'Storage upload failed.');
+        }
+        if (!data?.path) {
+          throw new Error('File uploaded but no path was returned.');
+        }
         return this.http.post<MedicalReportAnalyzeResponse>(`${this.API}/analyze`, {
           filePath: data.path,
           fileName: file.name
@@ -87,7 +96,7 @@ export class MedicalReportService {
         });
       })
     );
-  }
+  }  // ← this closing brace was missing in your code
 
   async listReports(): Promise<MedicalReportRecord[]> {
     const response = await firstValueFrom(
